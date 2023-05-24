@@ -16,6 +16,8 @@ function App() {
 
   const { data: currentUser } = useCurrentUser();
 
+  console.log(currentUser)
+
   return (
     <BrowserRouter>
       <Routes>

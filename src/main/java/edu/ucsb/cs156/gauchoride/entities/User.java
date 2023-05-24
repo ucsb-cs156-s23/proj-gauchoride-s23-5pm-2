@@ -7,6 +7,12 @@ import lombok.Builder;
 import lombok.AccessLevel;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
+
+import java.util.Set;
+import javax.persistence.FetchType;
+
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 
@@ -31,4 +37,8 @@ public class User {
   private boolean admin;
   @Builder.Default
   private boolean driver=false;
+
+  @OneToMany(mappedBy = "sender", fetch = FetchType.EAGER)
+  @OrderBy("timeStamp DESC")
+  private Set<DriverChat> driverChats;
 }

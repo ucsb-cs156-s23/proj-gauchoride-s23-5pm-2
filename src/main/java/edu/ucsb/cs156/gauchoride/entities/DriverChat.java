@@ -14,12 +14,16 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.validation.constraints.NotNull;
 import javax.persistence.JoinColumn;
+import javax.persistence.Index;
+import javax.persistence.Table;
+import javax.persistence.Column;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @Entity(name = "driverchats")
+@Table(name = "driverchats",indexes = @Index(name = "ts_index", columnList = "timeStamp DESC"))
 public class DriverChat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

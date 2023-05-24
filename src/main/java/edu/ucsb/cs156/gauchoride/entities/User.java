@@ -37,8 +37,4 @@ public class User {
   private boolean admin;
   @Builder.Default
   private boolean driver=false;
-
-  @OneToMany(mappedBy = "sender", fetch = FetchType.EAGER)
-  @OrderBy("timeStamp DESC")
-  private Set<DriverChat> driverChats;
 }

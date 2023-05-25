@@ -7,6 +7,7 @@ import { useSystemInfo} from "main/utils/systemInfo";
 export default function BasicLayout({ children }) {
 
   const { data: currentUser } = useCurrentUser();
+  console.log("line 10: ", currentUser);
   const { data: systemInfo } = useSystemInfo();
 
   const doLogout = useLogout().mutate;

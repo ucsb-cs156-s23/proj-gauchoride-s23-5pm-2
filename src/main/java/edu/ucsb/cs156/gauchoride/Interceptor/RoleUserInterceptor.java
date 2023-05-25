@@ -55,8 +55,6 @@ public class RoleUserInterceptor implements HandlerInterceptor {
                 if (user.getAdmin()){
                     newAuthorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
                 }
-
-                log.info("!!!!!!!authorities={}", newAuthorities);
                 
                 Authentication newAuth = new OAuth2AuthenticationToken(oAuthUser, newAuthorities,(((OAuth2AuthenticationToken)authentication).getAuthorizedClientRegistrationId()));
                 SecurityContextHolder.getContext().setAuthentication(newAuth);

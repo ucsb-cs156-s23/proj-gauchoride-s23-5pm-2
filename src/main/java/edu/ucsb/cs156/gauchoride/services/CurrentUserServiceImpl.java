@@ -6,7 +6,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.HashSet;
+import java.util.Set;
 
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -66,6 +69,21 @@ public class CurrentUserServiceImpl extends CurrentUserService {
         u.setAdmin(true);
         userRepository.save(u);
       }
+
+      // recheck ROLE in security context each time a user is read from database
+      Set<GrantedAuthority> newAuthorities = new HashSet<>();
+      Collection<? extends GrantedAuthority> currentAuthorities = authentication.getAuthorities();
+      currentAuthorities.stream().filter(authority -> !authority.getAuthority().equals("ROLE_ADMIN")).forEach(authority -> {
+        newAuthorities.add(authority);
+      });
+
+      if (u.getAdmin()){
+        newAuthorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+      }
+
+      Authentication newAuth = new OAuth2AuthenticationToken(oAuthUser, newAuthorities,(((OAuth2AuthenticationToken)authentication).getAuthorizedClientRegistrationId()));
+      SecurityContextHolder.getContext().setAuthentication(newAuth);
+
       return u;
     }
 

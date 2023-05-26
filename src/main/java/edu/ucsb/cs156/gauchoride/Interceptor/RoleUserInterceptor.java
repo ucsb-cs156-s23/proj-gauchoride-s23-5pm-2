@@ -18,7 +18,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import lombok.extern.slf4j.Slf4j;
 
 import java.util.Optional;
 import java.util.HashSet;
@@ -26,7 +25,7 @@ import java.util.Set;
 import java.util.Collection;
 import edu.ucsb.cs156.gauchoride.entities.User;
 
-@Slf4j
+
 @Component
 public class RoleUserInterceptor implements HandlerInterceptor {
 
@@ -35,6 +34,9 @@ public class RoleUserInterceptor implements HandlerInterceptor {
 
    @Override
    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        // Update user's security context on server each time the user makes HTTP request to the backend
+        // If user has admin status in database we will keep ROLE_ADMIN in security context
+        // Otherwise interceptor will remove ROLE_ADMIN before the incoming request is processed by backend API
         SecurityContext securityContext = SecurityContextHolder.getContext();
         Authentication authentication = securityContext.getAuthentication();
 
@@ -45,7 +47,6 @@ public class RoleUserInterceptor implements HandlerInterceptor {
             if (optionalUser.isPresent()){
                 User user = optionalUser.get();
 
-                // recheck ROLE in security context each time a user is read from database
                 Set<GrantedAuthority> newAuthorities = new HashSet<>();
                 Collection<? extends GrantedAuthority> currentAuthorities = authentication.getAuthorities();
                 currentAuthorities.stream().filter(authority -> !authority.getAuthority().equals("ROLE_ADMIN")).forEach(authority -> {

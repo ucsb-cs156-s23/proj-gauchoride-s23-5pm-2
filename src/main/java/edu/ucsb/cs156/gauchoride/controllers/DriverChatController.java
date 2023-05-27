@@ -12,11 +12,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 
 import javax.validation.Valid;
 
 import edu.ucsb.cs156.gauchoride.entities.DriverChat;
-import edu.ucsb.cs156.gauchoride.services.DriverChatService;
+import edu.ucsb.cs156.gauchoride.entities.User;
+import edu.ucsb.cs156.gauchoride.repositories.DriverChatRepository;
+import edu.ucsb.cs156.gauchoride.errors.EntityNotFoundException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -27,61 +31,83 @@ import io.swagger.annotations.ApiParam;
 public class DriverChatController extends ApiController {
 
     @Autowired
-    DriverChatService driverChatService;
+    DriverChatRepository driverChatRepository;
 
     @Autowired
     ObjectMapper mapper;
 
     @ApiOperation(value = "Get a list of all chat message")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_DRIVER')")
     @GetMapping("/all")
-    public Iterable<DriverChat> allChats() {
-        return driverChatService.listAllChatMessages();
+    public Iterable<DriverChat> getAllMessages() {
+        return driverChatRepository.findAll();
     }
 
-    @ApiOperation(value = "Get the latest messages based on query parameters")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @ApiOperation(value = "Get the latest N messages based on query parameters")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_DRIVER')")
     @GetMapping("/list")
-    public Iterable<DriverChat> recentChats(
+    public Iterable<DriverChat> getRecentMessage(
         @ApiParam("limit") @RequestParam int limit
     ) {
-        return driverChatService.getRecentChatMessages(limit);
+        Pageable pageable = PageRequest.of(0, limit);
+        return driverChatRepository.findAllByOrderByTimeStampDesc(pageable);
     }
 
 
     @ApiOperation(value = "Get a single chat message")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_DRIVER')")
     @GetMapping("")
-    public DriverChat getById(@ApiParam("id") @RequestParam Long id) {
-        return driverChatService.getChatById(id);
+    public DriverChat getMessageById(@ApiParam("id") @RequestParam Long id) {
+        DriverChat message =  driverChatRepository.findById(id)
+        .orElseThrow(()->new EntityNotFoundException(DriverChat.class, id));
+
+        return message;
     }
 
+
     @ApiOperation(value="Create a new chat message")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_DRIVER')")
     @PostMapping("/post")
-    public DriverChat postDriverChat(
+    public DriverChat postNewMessage(
         @RequestBody @Valid DriverChat driverChat
     )  throws JsonProcessingException {
 
-        return driverChatService.CreateNewChatMessage(driverChat);
+        DriverChat savedMessage = driverChatRepository.save(driverChat);
+        return savedMessage;
+    }
+
+    @ApiOperation(value="Delete a chat message if it belongs to you")
+    @PreAuthorize("hasRole('ROLE_DRIVER')")
+    @DeleteMapping()
+    public Object deleteMessageByDriver(
+        @ApiParam("id") @RequestParam Long id
+    ) {
+        User currentUser = getCurrentUser().getUser();
+        DriverChat message = driverChatRepository.findByIdAndSender(id, currentUser)
+        .orElseThrow(()->new EntityNotFoundException(DriverChat.class, id));
+
+        driverChatRepository.delete(message);
+        return genericMessage("Message with id %s deleted.".formatted(id));
     }
 
     @ApiOperation(value="Delete a chat message")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @DeleteMapping("")
-    public Object deleteDriverChat(
+    @DeleteMapping("/admin")
+    public Object deleteMessageByAdmin(
         @ApiParam("id") @RequestParam Long id
     ) {
+        DriverChat message = driverChatRepository.findById(id)
+        .orElseThrow(()->new EntityNotFoundException(DriverChat.class, id));
 
-        Long deletedMessageId = driverChatService.deleteChatMessageById(id);
-        return genericMessage("Message with id %s deleted".formatted(deletedMessageId));
+        driverChatRepository.delete(message);
+        return genericMessage("Message with id %s deleted.".formatted(id));
     }
 
     @ApiOperation(value="Delete all chat messages")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/all")
-    public Object deleteAllDriverChat() {
-        driverChatService.deleteAllChatMessage();
-        return genericMessage("All message have been deleted");
+    public Object deleteAllMessages() {
+        driverChatRepository.deleteAll();
+        return genericMessage("All messages have been deleted.");
     }
 }

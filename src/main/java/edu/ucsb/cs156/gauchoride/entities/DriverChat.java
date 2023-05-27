@@ -16,7 +16,6 @@ import javax.validation.constraints.NotNull;
 import javax.persistence.JoinColumn;
 import javax.persistence.Index;
 import javax.persistence.Table;
-import javax.persistence.Column;
 
 @Data
 @AllArgsConstructor

@@ -5,6 +5,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -43,6 +44,7 @@ public class DriverChatController extends ApiController {
         return driverChatRepository.findAll();
     }
 
+
     @ApiOperation(value = "Get the latest N messages based on query parameters")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_DRIVER')")
     @GetMapping("/list")
@@ -76,6 +78,40 @@ public class DriverChatController extends ApiController {
         return savedMessage;
     }
 
+
+    @ApiOperation(value="Update a driver's message")
+    @PreAuthorize("hasRole('ROLE_DRIVER')")
+    @PutMapping("")
+    public DriverChat updateMessageByDriver(
+        @ApiParam("Id") @RequestParam Long id,
+        @ApiParam("messageContent") @RequestParam String messageContent
+    ) {
+        User currentUser = getCurrentUser().getUser();
+        DriverChat message = driverChatRepository.findByIdAndSender(id, currentUser)
+                    .orElseThrow(()->new EntityNotFoundException(DriverChat.class, id));
+        
+        message.setMessageContent(messageContent);
+        driverChatRepository.save(message);
+        return message;
+    }
+
+
+    @ApiOperation(value="Update a driver's message(admin can edit anyone's messages)")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PutMapping("admin")
+    public DriverChat updateMessageByAdmin(
+        @ApiParam("Id") @RequestParam Long id,
+        @ApiParam("messageContent") @RequestParam String messageContent
+    ) {
+        DriverChat message = driverChatRepository.findById(id)
+                .orElseThrow(()->new EntityNotFoundException(DriverChat.class, id));
+        
+        message.setMessageContent(messageContent);
+        driverChatRepository.save(message);
+        return message;
+    }
+
+
     @ApiOperation(value="Delete a chat message if it belongs to you")
     @PreAuthorize("hasRole('ROLE_DRIVER')")
     @DeleteMapping()
@@ -90,6 +126,7 @@ public class DriverChatController extends ApiController {
         return genericMessage("Message with id %s deleted.".formatted(id));
     }
 
+
     @ApiOperation(value="Delete a chat message")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/admin")
@@ -102,6 +139,7 @@ public class DriverChatController extends ApiController {
         driverChatRepository.delete(message);
         return genericMessage("Message with id %s deleted.".formatted(id));
     }
+
 
     @ApiOperation(value="Delete all chat messages")
     @PreAuthorize("hasRole('ROLE_ADMIN')")

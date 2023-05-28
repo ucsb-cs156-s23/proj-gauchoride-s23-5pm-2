@@ -67,6 +67,16 @@ public class DriverChatControllerTests extends ControllerTestCase {
     }
 
     @Test
+    public void logged_out_user_cannot_update() throws Exception {
+        mockMvc.perform(put("/api/driverchats?id=2&messageContent=Hello there!!!")).andExpect(status().is(403));
+    }
+
+    @Test
+    public void logged_out_admin_cannot_update() throws Exception {
+        mockMvc.perform(put("/api/driverchats/admin?id=2&messageContent=Hello there!!!")).andExpect(status().is(403));
+    }
+
+    @Test
     public void logged_out_user_cannot_delete_by_id() throws Exception {
         mockMvc.perform(delete("/api/driverchats?id-5")).andExpect(status().is(403));
     }
@@ -101,10 +111,16 @@ public class DriverChatControllerTests extends ControllerTestCase {
         mockMvc.perform(post("/api/driverchats/post")).andExpect(status().is(403));
     }
 
+    @WithMockUser(roles = { "USER", "DRIVER" })
+    @Test
+    public void logged_in_regular_user_and_driver_cannot_access_update() throws Exception {
+        mockMvc.perform(put("/api/driverchats/admin?id=2&messageContent=Hello there!!!")).andExpect(status().is(403));
+    }
+
     @WithMockUser(roles = { "USER" })
     @Test
     public void logged_in_regular_user_cannot_delete_by_id() throws Exception {
-        mockMvc.perform(delete("/api/driverchats?id-5")).andExpect(status().is(403));
+        mockMvc.perform(delete("/api/driverchats?id=5")).andExpect(status().is(403));
     }
 
     @WithMockUser(roles = { "USER" })
@@ -246,6 +262,111 @@ public class DriverChatControllerTests extends ControllerTestCase {
         Map<String, Object> json = responseToJson(response);
         assertEquals("EntityNotFoundException", json.get("type"));
         assertEquals("DriverChat with id 1 not found", json.get("message"));
+    }
+
+    @WithMockUser(roles = {"ADMIN", "USER"})
+    @Test
+    public void logged_in_admin_can_update_message_owned_by_others() throws Exception {
+        User otherUser = User.builder().id(999L).build();
+        LocalDateTime ldt = LocalDateTime.parse("2023-05-28T00:00:00");
+        DriverChat message = DriverChat.builder()
+                    .messageContent("Hey Can you pick me up now?")
+                    .sender(otherUser)
+                    .timeStamp(ldt)
+                    .build();
+        
+        DriverChat updatedMessage = DriverChat.builder()
+        .messageContent("hello there!")
+        .sender(otherUser)
+        .timeStamp(ldt)
+        .build();
+
+        when(driverChatRepository.findById(eq(999L))).thenReturn(Optional.of(message));
+         // Act
+        MvcResult response = mockMvc.perform(put("/api/driverchats/admin?id=999&messageContent=hello there!").with(csrf()))
+                .andExpect(status().isOk()).andReturn();
+
+
+        verify(driverChatRepository, times(1)).findById(999L);
+        verify(driverChatRepository, times(1)).save(updatedMessage);
+        String expectedJson = mapper.writeValueAsString(updatedMessage);
+        String responseString = response.getResponse().getContentAsString();
+        assertEquals(expectedJson, responseString);
+    }
+
+    @WithMockUser(roles = {"ADMIN", "USER"})
+    @Test
+    public void logged_in_admin_cannot_update_message_that_does_not_exist() throws Exception {
+        User otherUser = User.builder().id(100L).build();
+        LocalDateTime ldt = LocalDateTime.parse("2023-05-28T00:00:00");
+        DriverChat message = DriverChat.builder()
+                    .messageContent("Hey Can you pick me up now?")
+                    .sender(otherUser)
+                    .timeStamp(ldt)
+                    .build();
+
+        when(driverChatRepository.findById(eq(999L))).thenReturn(Optional.of(message));
+         // Act
+        MvcResult response = mockMvc.perform(put("/api/driverchats/admin?id=1255&messageContent=hello there!").with(csrf()))
+                .andExpect(status().isNotFound()).andReturn();
+
+
+        verify(driverChatRepository, times(1)).findById(1255L);
+        Map<String, Object> json = responseToJson(response);
+        assertEquals("EntityNotFoundException", json.get("type"));
+        assertEquals("DriverChat with id 1255 not found", json.get("message"));
+    }
+
+    @WithMockUser(roles = {"DRIVER", "USER"})
+    @Test
+    public void logged_in_driver_cannot_update_message_owned_by_others() throws Exception {
+        User currentUser = currentUserService.getCurrentUser().getUser();
+        User otherUser = User.builder().id(999L).build();
+        LocalDateTime ldt = LocalDateTime.parse("2023-05-28T00:00:00");
+        DriverChat message = DriverChat.builder()
+                    .messageContent("Hey Can you pick me up now?")
+                    .sender(otherUser)
+                    .timeStamp(ldt)
+                    .build();
+
+        when(driverChatRepository.findByIdAndSender(eq(999L), eq(otherUser))).thenReturn(Optional.of(message));
+         // Act
+        MvcResult response = mockMvc.perform(put("/api/driverchats?id=999&messageContent=hello there!").with(csrf()))
+                .andExpect(status().isNotFound()).andReturn();
+
+        verify(driverChatRepository, times(1)).findByIdAndSender(999L, currentUser);
+        Map<String, Object> json = responseToJson(response);
+        assertEquals("EntityNotFoundException", json.get("type"));
+        assertEquals("DriverChat with id 999 not found", json.get("message"));
+    }
+
+    @WithMockUser(roles = {"DRIVER", "USER"})
+    @Test
+    public void logged_in_driver_can_update_message_owned_by_themselves() throws Exception {
+        User currentUser = currentUserService.getCurrentUser().getUser();
+        LocalDateTime ldt = LocalDateTime.parse("2023-05-28T00:00:00");
+        DriverChat message = DriverChat.builder()
+                    .messageContent("Hey Can you pick me up now?")
+                    .sender(currentUser)
+                    .timeStamp(ldt)
+                    .build();
+
+        DriverChat updatedMessage = DriverChat.builder()
+        .messageContent("hello there!")
+        .sender(currentUser)
+        .timeStamp(ldt)
+        .build();
+
+        when(driverChatRepository.findByIdAndSender(eq(999L), eq(currentUser))).thenReturn(Optional.of(message));
+        // Act
+        MvcResult response = mockMvc.perform(put("/api/driverchats?id=999&messageContent=hello there!").with(csrf()))
+                .andExpect(status().isOk()).andReturn();
+
+        verify(driverChatRepository, times(1)).findByIdAndSender(999L, currentUser);
+        verify(driverChatRepository, times(1)).save(updatedMessage);
+        String expectedJson = mapper.writeValueAsString(updatedMessage);
+        String responseString = response.getResponse().getContentAsString();
+        assertEquals(expectedJson, responseString);
     }
 
     @WithMockUser(roles = { "ADMIN", "USER" })

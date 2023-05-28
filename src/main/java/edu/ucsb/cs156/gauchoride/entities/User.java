@@ -31,4 +31,6 @@ public class User {
   private boolean admin;
   @Builder.Default
   private boolean driver=false;
+  public void setDriver(boolean driver) {
+    this.driver = driver;
 }

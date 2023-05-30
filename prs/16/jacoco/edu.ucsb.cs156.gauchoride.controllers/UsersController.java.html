@@ -82,5 +82,16 @@ import io.swagger.annotations.ApiParam;
 <span class="fc" id="L82">        return genericMessage(&quot;User with id %s has toggled admin status&quot;.formatted(id));</span>
     }
 
+    @ApiOperation(value = &quot;Toggle the driver field&quot;)
+    @PreAuthorize(&quot;hasRole('ROLE_ADMIN')&quot;)
+    @PostMapping(&quot;/toggleDriver&quot;)
+    public Object toggleDriver( @ApiParam(&quot;id&quot;) @RequestParam Long id){
+<span class="fc" id="L89">        User user = userRepository.findById(id)</span>
+<span class="fc" id="L90">        .orElseThrow(() -&gt; new EntityNotFoundException(User.class, id));</span>
+
+<span class="fc bfc" id="L92" title="All 2 branches covered.">        user.setDriver(!user.getDriver());</span>
+<span class="fc" id="L93">        userRepository.save(user);</span>
+<span class="fc" id="L94">        return genericMessage(&quot;User with id %s has toggled driver status&quot;.formatted(id));</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

@@ -49,20 +49,24 @@ import edu.ucsb.cs156.gauchoride.entities.User;
 
 <span class="nc" id="L50">                Set&lt;GrantedAuthority&gt; newAuthorities = new HashSet&lt;&gt;();</span>
 <span class="nc" id="L51">                Collection&lt;? extends GrantedAuthority&gt; currentAuthorities = authentication.getAuthorities();</span>
-<span class="nc bnc" id="L52" title="All 2 branches missed.">                currentAuthorities.stream().filter(authority -&gt; !authority.getAuthority().equals(&quot;ROLE_ADMIN&quot;)).forEach(authority -&gt; {</span>
+<span class="nc bnc" id="L52" title="All 4 branches missed.">                currentAuthorities.stream().filter(authority -&gt; !authority.getAuthority().equals(&quot;ROLE_ADMIN&quot;) &amp;&amp; !authority.getAuthority().equals(&quot;ROLE_DRIVER&quot;)).forEach(authority -&gt; {</span>
 <span class="nc" id="L53">                    newAuthorities.add(authority);</span>
 <span class="nc" id="L54">                });</span>
 
 <span class="nc bnc" id="L56" title="All 2 branches missed.">                if (user.getAdmin()){</span>
 <span class="nc" id="L57">                    newAuthorities.add(new SimpleGrantedAuthority(&quot;ROLE_ADMIN&quot;));</span>
                 }
+
+<span class="nc bnc" id="L60" title="All 2 branches missed.">                if (user.getDriver()){</span>
+<span class="nc" id="L61">                    newAuthorities.add(new SimpleGrantedAuthority(&quot;ROLE_DRIVER&quot;));</span>
+                }
                 
-<span class="nc" id="L60">                Authentication newAuth = new OAuth2AuthenticationToken(oAuthUser, newAuthorities,(((OAuth2AuthenticationToken)authentication).getAuthorizedClientRegistrationId()));</span>
-<span class="nc" id="L61">                SecurityContextHolder.getContext().setAuthentication(newAuth);</span>
+<span class="nc" id="L64">                Authentication newAuth = new OAuth2AuthenticationToken(oAuthUser, newAuthorities,(((OAuth2AuthenticationToken)authentication).getAuthorizedClientRegistrationId()));</span>
+<span class="nc" id="L65">                SecurityContextHolder.getContext().setAuthentication(newAuth);</span>
             }
         }
 
-<span class="fc" id="L65">      return true;</span>
+<span class="fc" id="L69">      return true;</span>
    }
     
 }

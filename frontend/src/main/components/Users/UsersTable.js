@@ -1,6 +1,7 @@
 
 import OurTable, { ButtonColumn } from "main/components/OurTable"
 import { useBackendMutation } from "main/utils/useBackend";
+//import UsersTable from './UsersTable';
 //import {hasRole} from "main/utils/currentUser";
 
 
@@ -63,11 +64,13 @@ export default function UsersTable({ users}) {
             Header: 'Admin',
             id: 'admin',
             accessor: (row, _rowIndex) => String(row.admin) // hack needed for boolean values to show up
+            //accessor: (row, _rowIndex) => <span data-testid={`admin-${row.id}`}>{String(row.admin)}</span> 
         },
         {
             Header: 'Driver',
             id: 'driver',
             accessor: (row, _rowIndex) => String(row.driver) // hack needed for boolean values to show up
+            //accessor: (row, _rowIndex) => <span data-testid={`driver-${row.id}`}>{String(row.driver)}</span>
         }
     ];
    

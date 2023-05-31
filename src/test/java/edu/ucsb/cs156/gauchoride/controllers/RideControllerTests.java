@@ -245,8 +245,6 @@ public class RideControllerTests extends ControllerTestCase {
         @WithMockUser(roles = { "ADMIN", "USER" })
         @Test
         public void admin_can_delete_a_ride() throws Exception {
-                User studentUser_id15 = User.builder().id(15L).build();
-                User driverUser_id15 = User.builder().id(15L).build();
                 LocalTime startT = LocalTime.of(14,0);
                 LocalTime stopT = LocalTime.of(15,15);
                 Ride ride1 = Ride.builder()
@@ -302,6 +300,8 @@ public class RideControllerTests extends ControllerTestCase {
         public void admin_can_edit_an_existing_ride() throws Exception {
                 LocalTime startT = LocalTime.of(14,0);
                 LocalTime stopT = LocalTime.of(15,15);
+                LocalTime startTedit = LocalTime.of(9,30);
+                LocalTime stopTedit = LocalTime.of(10,45);
                 Ride rideOrig = Ride.builder()
                                 .day("Tuesday")
                                 .studentName("Bob")
@@ -315,14 +315,14 @@ public class RideControllerTests extends ControllerTestCase {
                                 .build();
 
                 Ride rideEdited = Ride.builder()
-                                .day("Tuesday")
+                                .day("Monday")
                                 .studentName("Brad")
                                 .driverName("Chad")
-                                .course("CMPSC 156")
-                                .timeStart(startT)
-                                .timeStop(stopT)
-                                .building("South Hall")
-                                .room("1431")
+                                .course("CMPSC 171")
+                                .timeStart(startTedit)
+                                .timeStop(stopTedit)
+                                .building("North Hall")
+                                .room("1432")
                                 .pickUp("Rec Cen")
                                 .build();
 

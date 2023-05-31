@@ -1,6 +1,8 @@
 package edu.ucsb.cs156.gauchoride.controllers;
 
+import edu.ucsb.cs156.gauchoride.repositories.UserRepository;
 import edu.ucsb.cs156.gauchoride.entities.Ride;
+import edu.ucsb.cs156.gauchoride.entities.User;
 import edu.ucsb.cs156.gauchoride.errors.EntityNotFoundException;
 import edu.ucsb.cs156.gauchoride.repositories.RideRepository;
 import io.swagger.annotations.Api;
@@ -22,6 +24,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.time.LocalTime;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Api(description = "Ride")
 @RequestMapping("/api/rides")
@@ -31,6 +35,9 @@ public class RideController extends ApiController {
     
     @Autowired
     RideRepository rideRepository;
+
+    @Autowired
+    UserRepository userRepository;
 
     @ApiOperation(value = "List all rides")
     @PreAuthorize("hasRole('ROLE_USER')")
@@ -54,33 +61,13 @@ public class RideController extends ApiController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/post")
     public Ride postRides(
-        @ApiParam("day") @RequestParam String day,
-        @ApiParam("student") @RequestParam String student,
-        @ApiParam("driver") @RequestParam String driver,
-        @ApiParam("course") @RequestParam String course,
-        @ApiParam("timeStart") @RequestParam String timeStart,
-        @ApiParam("timeStop") @RequestParam String timeStop,
-        @ApiParam("building") @RequestParam String building,
-        @ApiParam("room") @RequestParam String room,
-        @ApiParam("pickUp") @RequestParam String pickUp
+        @RequestBody @Valid Ride ride
         )
+        throws JsonProcessingException
         {
-
-        Ride ride = new Ride();
-        ride.setDay(day);
-        ride.setStudent(student);
-        ride.setDriver(driver);
-        ride.setCourse(course);
-        ride.setTimeStart(timeStart);
-        ride.setTimeStop(timeStop);
-        ride.setBuilding(building);
-        ride.setRoom(room);
-        ride.setPickUp(pickUp);
-
-        Ride savedRide = rideRepository.save(ride);
-
-        return savedRide;
-    }
+            Ride savedRide = rideRepository.save(ride);
+            return savedRide;
+        }
 
     @ApiOperation(value = "Delete a ride")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -106,8 +93,8 @@ public class RideController extends ApiController {
 
 
         ride.setDay(incoming.getDay());  
-        ride.setStudent(incoming.getStudent());
-        ride.setDriver(incoming.getDriver());
+        ride.setStudentName(incoming.getStudentName());
+        ride.setDriverName(incoming.getDriverName());
         ride.setCourse(incoming.getCourse());
         ride.setTimeStart(incoming.getTimeStart());
         ride.setTimeStop(incoming.getTimeStop());

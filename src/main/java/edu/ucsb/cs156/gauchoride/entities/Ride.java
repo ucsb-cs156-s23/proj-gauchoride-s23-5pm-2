@@ -10,6 +10,9 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 
+
+import java.time.LocalTime;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,13 +22,12 @@ public class Ride {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-
     private String day;
-    private String student;
-    private String driver;
+    private String studentName; 
+    private String driverName; 
     private String course;
-    private String timeStart;
-    private String timeStop;
+    private LocalTime timeStart;
+    private LocalTime timeStop;
     private String building;
     private String room;
     private String pickUp;

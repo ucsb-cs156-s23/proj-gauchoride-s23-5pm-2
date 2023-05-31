@@ -30,6 +30,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalTime;
+import edu.ucsb.cs156.gauchoride.entities.User;
+
 @WebMvcTest(controllers = RideController.class)
 @Import(TestConfig.class)
 public class RideControllerTests extends ControllerTestCase {
@@ -110,14 +113,15 @@ public class RideControllerTests extends ControllerTestCase {
         @WithMockUser(roles = { "USER" })
         @Test
         public void test_that_logged_in_user_can_get_by_id_when_the_id_exists() throws Exception {
-
+                LocalTime startT = LocalTime.of(14,0);
+                LocalTime stopT = LocalTime.of(15,15);
                 Ride ride = Ride.builder()
                                 .day("Tuesday")
-                                .student("Bob")
-                                .driver("Tom")
+                                .studentName("Bob")
+                                .driverName("Tom")
                                 .course("CMPSC 156")
-                                .timeStart("2:00 P.M.")
-                                .timeStop("3:15 P.M.")
+                                .timeStart(startT)
+                                .timeStop(stopT)
                                 .building("South Hall")
                                 .room("1431")
                                 .pickUp("Home")
@@ -160,14 +164,17 @@ public class RideControllerTests extends ControllerTestCase {
         @WithMockUser(roles = { "USER" })
         @Test
         public void logged_in_user_can_get_all_rides() throws Exception {
-
+                LocalTime startT1 = LocalTime.of(14,0);
+                LocalTime stopT1 = LocalTime.of(15,15);
+                LocalTime startT2 = LocalTime.of(9,30);
+                LocalTime stopT2 = LocalTime.of(10,45);
                 Ride ride1 = Ride.builder()
                                 .day("Tuesday")
-                                .student("Bob")
-                                .driver("Tom")
+                                .studentName("Bob")
+                                .driverName("Tom")
                                 .course("CMPSC 156")
-                                .timeStart("2:00 P.M.")
-                                .timeStop("3:15 P.M.")
+                                .timeStart(startT1)
+                                .timeStop(stopT1)
                                 .building("South Hall")
                                 .room("1431")
                                 .pickUp("Home")
@@ -175,11 +182,11 @@ public class RideControllerTests extends ControllerTestCase {
 
                 Ride ride2 = Ride.builder()
                                 .day("Monday")
-                                .student("Alex")
-                                .driver("Brad")
+                                .studentName("Alex")
+                                .driverName("Brad")
                                 .course("CMPSC 171")
-                                .timeStart("9:30 A.M.")
-                                .timeStop("10:45 A.M.")
+                                .timeStart(startT2)
+                                .timeStop(stopT2)
                                 .building("Psychology")
                                 .room("1924")
                                 .pickUp("Home")
@@ -205,26 +212,28 @@ public class RideControllerTests extends ControllerTestCase {
         @WithMockUser(roles = { "ADMIN", "USER" })
         @Test
         public void an_admin_user_can_post_a_new_ride() throws Exception {
-
+                LocalTime startT = LocalTime.parse("14:00:00");
+                LocalTime stopT = LocalTime.parse("15:15:00");
                 Ride ride1 = Ride.builder()
                                 .day("Tuesday")
-                                .student("Bob")
-                                .driver("Tom")
-                                .course("CMPSC 156")
-                                .timeStart("2:00 P.M.")
-                                .timeStop("3:15 P.M.")
+                                .studentName("Bob")
+                                .driverName("Tom")
+                                .course("CMPSC%20156")
+                                .timeStart(startT)
+                                .timeStop(stopT)
                                 .building("South Hall")
                                 .room("1431")
                                 .pickUp("Home")
                                 .build();
-
+                                
+                String requestBody = mapper.writeValueAsString(ride1);
                 when(rideRepository.save(eq(ride1))).thenReturn(ride1);
 
                 // act
-                MvcResult response = mockMvc.perform(
-                                post("/api/rides/post?day=Tuesday&student=Bob&driver=Tom&course=CMPSC 156&timeStart=2:00 P.M.&timeStop=3:15 P.M.&building=South Hall&room=1431&pickUp=Home")
-                                                .with(csrf()))
-                                .andExpect(status().isOk()).andReturn();
+                MvcResult response = mockMvc.perform(post("/api/rides/post")
+                .contentType(MediaType.APPLICATION_JSON)
+                .characterEncoding("utf-8")
+                .content(requestBody).with(csrf())).andExpect(status().isOk()).andReturn();
 
                 // assert
                 verify(rideRepository, times(1)).save(ride1);
@@ -236,14 +245,17 @@ public class RideControllerTests extends ControllerTestCase {
         @WithMockUser(roles = { "ADMIN", "USER" })
         @Test
         public void admin_can_delete_a_ride() throws Exception {
-
+                User studentUser_id15 = User.builder().id(15L).build();
+                User driverUser_id15 = User.builder().id(15L).build();
+                LocalTime startT = LocalTime.of(14,0);
+                LocalTime stopT = LocalTime.of(15,15);
                 Ride ride1 = Ride.builder()
                                 .day("Tuesday")
-                                .student("Bob")
-                                .driver("Tom")
+                                .studentName("Bob")
+                                .driverName("Tom")
                                 .course("CMPSC 156")
-                                .timeStart("2:00 P.M.")
-                                .timeStop("3:15 P.M.")
+                                .timeStart(startT)
+                                .timeStop(stopT)
                                 .building("South Hall")
                                 .room("1431")
                                 .pickUp("Home")
@@ -288,14 +300,15 @@ public class RideControllerTests extends ControllerTestCase {
         @WithMockUser(roles = { "ADMIN", "USER" })
         @Test
         public void admin_can_edit_an_existing_ride() throws Exception {
-
+                LocalTime startT = LocalTime.of(14,0);
+                LocalTime stopT = LocalTime.of(15,15);
                 Ride rideOrig = Ride.builder()
                                 .day("Tuesday")
-                                .student("Bob")
-                                .driver("Tom")
+                                .studentName("Bob")
+                                .driverName("Tom")
                                 .course("CMPSC 156")
-                                .timeStart("2:00 P.M.")
-                                .timeStop("3:15 P.M.")
+                                .timeStart(startT)
+                                .timeStop(stopT)
                                 .building("South Hall")
                                 .room("1431")
                                 .pickUp("Home")
@@ -303,11 +316,11 @@ public class RideControllerTests extends ControllerTestCase {
 
                 Ride rideEdited = Ride.builder()
                                 .day("Tuesday")
-                                .student("Alex")
-                                .driver("Brad")
+                                .studentName("Brad")
+                                .driverName("Chad")
                                 .course("CMPSC 156")
-                                .timeStart("2:00 P.M.")
-                                .timeStop("3:15 P.M.")
+                                .timeStart(startT)
+                                .timeStop(stopT)
                                 .building("South Hall")
                                 .room("1431")
                                 .pickUp("Rec Cen")
@@ -336,14 +349,15 @@ public class RideControllerTests extends ControllerTestCase {
         @WithMockUser(roles = { "ADMIN", "USER" })
         @Test
         public void admin_cannot_edit_ride_that_does_not_exist() throws Exception {
-
+                LocalTime startT = LocalTime.of(14,0);
+                LocalTime stopT = LocalTime.of(15,15);
                 Ride editedRide = Ride.builder()
                                 .day("Tuesday")
-                                .student("Bob")
-                                .driver("Tom")
+                                .studentName("Bob")
+                                .driverName("Tom")
                                 .course("CMPSC 156")
-                                .timeStart("2:00 P.M.")
-                                .timeStop("3:15 P.M.")
+                                .timeStart(startT)
+                                .timeStop(stopT)
                                 .building("South Hall")
                                 .room("1431")
                                 .pickUp("Home")

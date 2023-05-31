@@ -168,14 +168,14 @@ public class CartControllerTests extends ControllerTestCase {
                 Cart cart1 = Cart.builder()
                                 .name("Cart1")
                                 .capacityPeople(4)
-                                .capacityWheelchair(0)
+                                .capacityWheelchair(3)
                                 .build();
 
                 when(cartRepository.save(eq(cart1))).thenReturn(cart1);
 
                 // act
                 MvcResult response = mockMvc.perform(
-                                post("/api/carts/post?name=Cart1&capacityPeople=4&capacityWheelchair=0")
+                                post("/api/carts/post?name=Cart1&capacityPeople=4&capacityWheelchair=3")
                                                 .with(csrf()))
                                 .andExpect(status().isOk()).andReturn();
 
@@ -194,7 +194,7 @@ public class CartControllerTests extends ControllerTestCase {
                 Cart cart1 = Cart.builder()
                                 .name("Cass")
                                 .capacityPeople(3)
-                                .capacityWheelchair(0)
+                                .capacityWheelchair(4)
                                 .build();
 
                 when(cartRepository.findById(eq(15L))).thenReturn(Optional.of(cart1));
@@ -241,13 +241,13 @@ public class CartControllerTests extends ControllerTestCase {
                 Cart cartOrig = Cart.builder()
                                 .name("January")
                                 .capacityPeople(2)
-                                .capacityWheelchair(1)
+                                .capacityWheelchair(5)
                                 .build();
 
                 Cart cartEdited = Cart.builder()
                                 .name("Krampus")
                                 .capacityPeople(1)
-                                .capacityWheelchair(2)
+                                .capacityWheelchair(6)
                                 .build();
 
                 String requestBody = mapper.writeValueAsString(cartEdited);

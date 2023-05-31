@@ -9,6 +9,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
+import javax.validation.constraints.NotNull;
 
 
 @Data
@@ -21,10 +22,13 @@ public class Cart {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private long id;
 
+  @NotNull
   private String name;
 
+  @NotNull
   private int capacityPeople;
-
+  
+  @NotNull
   private int capacityWheelchair;
 
 }

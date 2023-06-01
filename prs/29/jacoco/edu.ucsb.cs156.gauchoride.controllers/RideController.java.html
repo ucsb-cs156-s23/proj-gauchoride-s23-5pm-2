@@ -39,72 +39,45 @@ import org.springframework.format.annotation.DateTimeFormat;
     @Autowired
     UserRepository userRepository;
 
-    @ApiOperation(value = &quot;List all rides&quot;)
-    @PreAuthorize(&quot;hasRole('ROLE_USER')&quot;)
+    @ApiOperation(value = &quot;List all ride requests&quot;)
+    @PreAuthorize(&quot;hasAnyRole('ROLE_ADMIN','ROLE_DRIVER')&quot;)
     @GetMapping(&quot;/all&quot;)
-    public Iterable&lt;Ride&gt; allRidess() {
+    public Iterable&lt;Ride&gt; allRides() {
 <span class="fc" id="L46">        Iterable&lt;Ride&gt; rides = rideRepository.findAll();</span>
 <span class="fc" id="L47">        return rides;</span>
     }
 
-    @ApiOperation(value = &quot;Get a ride&quot;)
-    @PreAuthorize(&quot;hasRole('ROLE_USER')&quot;)
-    @GetMapping(&quot;&quot;)
-    public Ride getById(
-            @ApiParam(&quot;id&quot;) @RequestParam Long id) {
-<span class="fc" id="L55">            Ride ride = rideRepository.findById(id)</span>
-<span class="fc" id="L56">                .orElseThrow(() -&gt; new EntityNotFoundException(Ride.class, id));</span>
-<span class="fc" id="L57">        return ride;</span>
+    @ApiOperation(value = &quot;List all of user's ride requests&quot;)
+    @PreAuthorize(&quot;hasAnyRole('ROLE_USER','ROLE_RIDER')&quot;)
+    @GetMapping(&quot;/rider&quot;)
+    public Iterable&lt;Ride&gt; allRiderRides() {
+<span class="fc" id="L54">        User currentUser =   getCurrentUser().getUser();</span>
+<span class="fc" id="L55">        Iterable&lt;Ride&gt; rides = rideRepository.findAllByRider(currentUser);</span>
+<span class="fc" id="L56">        return rides;</span>
     }
 
-    @ApiOperation(value = &quot;Create a new ride&quot;)
+    @ApiOperation(value = &quot;Get a ride request by its id&quot;)
     @PreAuthorize(&quot;hasRole('ROLE_ADMIN')&quot;)
+    @GetMapping(&quot;&quot;)
+    public Ride getById(
+        @ApiParam(name=&quot;Ride Request's id&quot;, type = &quot;Long&quot;, value = &quot;id is a number&quot;, example = &quot;10&quot;,required = true ) 
+        @RequestParam Long id) {
+<span class="fc" id="L65">            Ride ride = rideRepository.findById(id)</span>
+<span class="fc" id="L66">            .orElseThrow(() -&gt; new EntityNotFoundException(Ride.class, id));</span>
+<span class="fc" id="L67">            return ride;</span>
+        }
+
+    @ApiOperation(value = &quot;Create a new ride&quot;)
+    @PreAuthorize(&quot;hasRole('ROLE_USER')&quot;)
     @PostMapping(&quot;/post&quot;)
     public Ride postRides(
         @RequestBody @Valid Ride ride
         )
         throws JsonProcessingException
         {
-<span class="fc" id="L68">            Ride savedRide = rideRepository.save(ride);</span>
-<span class="fc" id="L69">            return savedRide;</span>
+<span class="fc" id="L78">            Ride savedRide = rideRepository.save(ride);</span>
+<span class="fc" id="L79">            return savedRide;</span>
         }
 
-    @ApiOperation(value = &quot;Delete a ride&quot;)
-    @PreAuthorize(&quot;hasRole('ROLE_ADMIN')&quot;)
-    @DeleteMapping(&quot;&quot;)
-    public Object deleteRide(
-            @ApiParam(&quot;id&quot;) @RequestParam Long id) {
-<span class="fc" id="L77">        Ride ride = rideRepository.findById(id)</span>
-<span class="fc" id="L78">                .orElseThrow(() -&gt; new EntityNotFoundException(Ride.class, id));</span>
-
-<span class="fc" id="L80">        rideRepository.delete(ride);</span>
-<span class="fc" id="L81">        return genericMessage(&quot;Ride with id %s deleted&quot;.formatted(id));</span>
-    }
-
-    @ApiOperation(value = &quot;Update a single rides&quot;)
-    @PreAuthorize(&quot;hasRole('ROLE_ADMIN')&quot;)
-    @PutMapping(&quot;&quot;)
-    public Ride updateRides(
-            @ApiParam(&quot;id&quot;) @RequestParam Long id,
-            @RequestBody @Valid Ride incoming) {
-
-<span class="fc" id="L91">        Ride ride = rideRepository.findById(id)</span>
-<span class="fc" id="L92">                .orElseThrow(() -&gt; new EntityNotFoundException(Ride.class, id));</span>
-
-
-<span class="fc" id="L95">        ride.setDay(incoming.getDay());  </span>
-<span class="fc" id="L96">        ride.setStudentName(incoming.getStudentName());</span>
-<span class="fc" id="L97">        ride.setDriverName(incoming.getDriverName());</span>
-<span class="fc" id="L98">        ride.setCourse(incoming.getCourse());</span>
-<span class="fc" id="L99">        ride.setTimeStart(incoming.getTimeStart());</span>
-<span class="fc" id="L100">        ride.setTimeStop(incoming.getTimeStop());</span>
-<span class="fc" id="L101">        ride.setBuilding(incoming.getBuilding());</span>
-<span class="fc" id="L102">        ride.setRoom(incoming.getRoom());</span>
-<span class="fc" id="L103">        ride.setPickUp(incoming.getPickUp());</span>
-
-<span class="fc" id="L105">        rideRepository.save(ride);</span>
-
-<span class="fc" id="L107">        return ride;</span>
-    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

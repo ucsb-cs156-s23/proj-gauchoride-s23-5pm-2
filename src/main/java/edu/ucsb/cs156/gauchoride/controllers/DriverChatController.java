@@ -17,8 +17,10 @@ import org.springframework.data.domain.PageRequest;
 import javax.validation.Valid;
 
 import edu.ucsb.cs156.gauchoride.entities.DriverChat;
+import edu.ucsb.cs156.gauchoride.entities.User;
 import edu.ucsb.cs156.gauchoride.repositories.DriverChatRepository;
 import edu.ucsb.cs156.gauchoride.errors.EntityNotFoundException;
+import edu.ucsb.cs156.gauchoride.errors.IllegalRequestException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -67,6 +69,13 @@ public class DriverChatController extends ApiController {
     public DriverChat postNewMessage(
         @RequestBody @Valid DriverChat driverChat
     )  throws JsonProcessingException {
+
+        User currentUser = getCurrentUser().getUser();
+        User sender = driverChat.getSender();
+
+        if (!currentUser.equals(sender)){
+            throw new IllegalRequestException();
+        }
 
         DriverChat savedMessage = driverChatRepository.save(driverChat);
         return savedMessage;

@@ -39,26 +39,36 @@ public class RideController extends ApiController {
     @Autowired
     UserRepository userRepository;
 
-    @ApiOperation(value = "List all rides")
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @ApiOperation(value = "List all ride requests")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_DRIVER')")
     @GetMapping("/all")
-    public Iterable<Ride> allRidess() {
+    public Iterable<Ride> allRides() {
         Iterable<Ride> rides = rideRepository.findAll();
         return rides;
     }
 
-    @ApiOperation(value = "Get a ride")
-    @PreAuthorize("hasRole('ROLE_USER')")
-    @GetMapping("")
-    public Ride getById(
-            @ApiParam("id") @RequestParam Long id) {
-            Ride ride = rideRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(Ride.class, id));
-        return ride;
+    @ApiOperation(value = "List all of user's ride requests")
+    @PreAuthorize("hasAnyRole('ROLE_USER','ROLE_RIDER')")
+    @GetMapping("/rider")
+    public Iterable<Ride> allRiderRides() {
+        User currentUser =   getCurrentUser().getUser();
+        Iterable<Ride> rides = rideRepository.findAllByRider(currentUser);
+        return rides;
     }
 
-    @ApiOperation(value = "Create a new ride")
+    @ApiOperation(value = "Get a ride request by its id")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("")
+    public Ride getById(
+        @ApiParam(name="Ride Request's id", type = "Long", value = "id is a number", example = "10",required = true ) 
+        @RequestParam Long id) {
+            Ride ride = rideRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException(Ride.class, id));
+            return ride;
+        }
+
+    @ApiOperation(value = "Create a new ride")
+    @PreAuthorize("hasRole('ROLE_USER')")
     @PostMapping("/post")
     public Ride postRides(
         @RequestBody @Valid Ride ride
@@ -69,41 +79,4 @@ public class RideController extends ApiController {
             return savedRide;
         }
 
-    @ApiOperation(value = "Delete a ride")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @DeleteMapping("")
-    public Object deleteRide(
-            @ApiParam("id") @RequestParam Long id) {
-        Ride ride = rideRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(Ride.class, id));
-
-        rideRepository.delete(ride);
-        return genericMessage("Ride with id %s deleted".formatted(id));
-    }
-
-    @ApiOperation(value = "Update a single rides")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PutMapping("")
-    public Ride updateRides(
-            @ApiParam("id") @RequestParam Long id,
-            @RequestBody @Valid Ride incoming) {
-
-        Ride ride = rideRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(Ride.class, id));
-
-
-        ride.setDay(incoming.getDay());  
-        ride.setStudentName(incoming.getStudentName());
-        ride.setDriverName(incoming.getDriverName());
-        ride.setCourse(incoming.getCourse());
-        ride.setTimeStart(incoming.getTimeStart());
-        ride.setTimeStop(incoming.getTimeStop());
-        ride.setBuilding(incoming.getBuilding());
-        ride.setRoom(incoming.getRoom());
-        ride.setPickUp(incoming.getPickUp());
-
-        rideRepository.save(ride);
-
-        return ride;
-    }
 }

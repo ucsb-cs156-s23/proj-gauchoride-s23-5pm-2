@@ -4,6 +4,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.GenerationType;
+import javax.persistence.ManyToOne;
+import javax.persistence.JoinColumn;
+import javax.persistence.Table;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,13 +21,22 @@ import java.time.LocalTime;
 @NoArgsConstructor
 @Builder
 @Entity(name = "ride")
+@Table(name= "ride")
 public class Ride {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private String day;
-    private String studentName; 
-    private String driverName; 
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User rider; 
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User driver; 
+
+
     private String course;
     private LocalTime timeStart;
     private LocalTime timeStop;

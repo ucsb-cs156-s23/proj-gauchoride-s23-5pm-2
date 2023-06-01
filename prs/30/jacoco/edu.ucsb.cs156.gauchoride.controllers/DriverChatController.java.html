@@ -75,10 +75,11 @@ import io.swagger.annotations.ApiParam;
 
 <span class="fc bfc" id="L76" title="All 2 branches covered.">        if (!currentUser.equals(sender)){</span>
 <span class="fc" id="L77">            throw new IllegalRequestException();</span>
+            // throw new IllegalArgumentException(&quot;some shit&quot;);
         }
 
-<span class="fc" id="L80">        DriverChat savedMessage = driverChatRepository.save(driverChat);</span>
-<span class="fc" id="L81">        return savedMessage;</span>
+<span class="fc" id="L81">        DriverChat savedMessage = driverChatRepository.save(driverChat);</span>
+<span class="fc" id="L82">        return savedMessage;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

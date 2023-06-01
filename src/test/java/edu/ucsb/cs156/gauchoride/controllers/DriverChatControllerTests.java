@@ -287,7 +287,7 @@ public class DriverChatControllerTests extends ControllerTestCase {
         //     .characterEncoding("utf-8")
         //     .content(requestBody).with(csrf()))
         //     .andExpect(status().isInternalServerError());
-        // }).hasCause(new IllegalArgumentException()).hasMessageContaining("some shit");
+        // }).hasCause(new IllegalArgumentException()).hasMessageContaining("some good stuff");
 
         // Assert
         verify(driverChatRepository, times(0)).save(chat);

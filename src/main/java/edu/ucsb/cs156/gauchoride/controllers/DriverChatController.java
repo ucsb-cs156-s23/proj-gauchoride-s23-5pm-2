@@ -75,7 +75,7 @@ public class DriverChatController extends ApiController {
 
         if (!currentUser.equals(sender)){
             throw new IllegalRequestException();
-            // throw new IllegalArgumentException("some shit");
+            // throw new IllegalArgumentException("some good stuff");
         }
 
         DriverChat savedMessage = driverChatRepository.save(driverChat);

@@ -93,7 +93,7 @@ public class UsersController extends ApiController {
         userRepository.save(user);
         return genericMessage("User with id %s has toggled driver status".formatted(id));
     }
-
+  
     @ApiOperation(value = "Toggle the rider field")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/toggleRider")

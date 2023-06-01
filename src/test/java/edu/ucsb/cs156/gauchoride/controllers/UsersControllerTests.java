@@ -341,9 +341,7 @@ public class UsersControllerTests extends ControllerTestCase {
           Map<String, Object> json = responseToJson(response);
           assertEquals("User with id 15 not found", json.get("message"));
   }
-
-
-
+  
   // rider toggle tests
   @WithMockUser(roles = { "ADMIN", "USER" })
   @Test

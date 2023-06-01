@@ -17,8 +17,10 @@ import org.springframework.data.domain.PageRequest;
 import javax.validation.Valid;
 
 import edu.ucsb.cs156.gauchoride.entities.DriverChat;
+import edu.ucsb.cs156.gauchoride.entities.User;
 import edu.ucsb.cs156.gauchoride.repositories.DriverChatRepository;
 import edu.ucsb.cs156.gauchoride.errors.EntityNotFoundException;
+import edu.ucsb.cs156.gauchoride.errors.IllegalRequestException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -26,7 +28,7 @@ import io.swagger.annotations.ApiParam;
 @Api(description= &quot;Driver chat information&quot;)
 @RequestMapping(&quot;/api/driverchats&quot;)
 @RestController
-<span class="fc" id="L29">public class DriverChatController extends ApiController {</span>
+<span class="fc" id="L31">public class DriverChatController extends ApiController {</span>
 
     @Autowired
     DriverChatRepository driverChatRepository;
@@ -38,7 +40,7 @@ import io.swagger.annotations.ApiParam;
     @PreAuthorize(&quot;hasAnyRole('ROLE_ADMIN','ROLE_DRIVER')&quot;)
     @GetMapping(&quot;/all&quot;)
     public Iterable&lt;DriverChat&gt; getAllMessages() {
-<span class="fc" id="L41">        return driverChatRepository.findAll();</span>
+<span class="fc" id="L43">        return driverChatRepository.findAll();</span>
     }
 
     @ApiOperation(value = &quot;Get the latest N messages based on query parameters&quot;)
@@ -47,18 +49,18 @@ import io.swagger.annotations.ApiParam;
     public Iterable&lt;DriverChat&gt; getRecentMessage(
         @ApiParam(&quot;limit&quot;) @RequestParam int limit
     ) {
-<span class="fc" id="L50">        Pageable pageable = PageRequest.of(0, limit);</span>
-<span class="fc" id="L51">        return driverChatRepository.findAllByOrderByTimeStampDesc(pageable);</span>
+<span class="fc" id="L52">        Pageable pageable = PageRequest.of(0, limit);</span>
+<span class="fc" id="L53">        return driverChatRepository.findAllByOrderByTimeStampDesc(pageable);</span>
     }
 
     @ApiOperation(value = &quot;Get a single chat message&quot;)
     @PreAuthorize(&quot;hasAnyRole('ROLE_ADMIN','ROLE_DRIVER')&quot;)
     @GetMapping(&quot;&quot;)
     public DriverChat getMessageById(@ApiParam(&quot;id&quot;) @RequestParam Long id) {
-<span class="fc" id="L58">        DriverChat message =  driverChatRepository.findById(id)</span>
-<span class="fc" id="L59">        .orElseThrow(()-&gt;new EntityNotFoundException(DriverChat.class, id));</span>
+<span class="fc" id="L60">        DriverChat message =  driverChatRepository.findById(id)</span>
+<span class="fc" id="L61">        .orElseThrow(()-&gt;new EntityNotFoundException(DriverChat.class, id));</span>
 
-<span class="fc" id="L61">        return message;</span>
+<span class="fc" id="L63">        return message;</span>
     }
 
     @ApiOperation(value=&quot;Create a new chat message&quot;)
@@ -68,8 +70,15 @@ import io.swagger.annotations.ApiParam;
         @RequestBody @Valid DriverChat driverChat
     )  throws JsonProcessingException {
 
-<span class="fc" id="L71">        DriverChat savedMessage = driverChatRepository.save(driverChat);</span>
-<span class="fc" id="L72">        return savedMessage;</span>
+<span class="fc" id="L73">        User currentUser = getCurrentUser().getUser();</span>
+<span class="fc" id="L74">        User sender = driverChat.getSender();</span>
+
+<span class="fc bfc" id="L76" title="All 2 branches covered.">        if (!currentUser.equals(sender)){</span>
+<span class="fc" id="L77">            throw new IllegalRequestException();</span>
+        }
+
+<span class="fc" id="L80">        DriverChat savedMessage = driverChatRepository.save(driverChat);</span>
+<span class="fc" id="L81">        return savedMessage;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

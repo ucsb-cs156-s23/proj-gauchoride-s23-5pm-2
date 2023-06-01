@@ -281,6 +281,13 @@ public class DriverChatControllerTests extends ControllerTestCase {
             .content(requestBody).with(csrf()))
             .andExpect(status().isInternalServerError());
         }).hasCause(new IllegalRequestException()).hasMessageContaining("HTTP request cannot be processed.");
+        // assertThatThrownBy(() -> {
+        //     mockMvc.perform(post("/api/driverchats/post")
+        //     .contentType(MediaType.APPLICATION_JSON)
+        //     .characterEncoding("utf-8")
+        //     .content(requestBody).with(csrf()))
+        //     .andExpect(status().isInternalServerError());
+        // }).hasCause(new IllegalArgumentException()).hasMessageContaining("some shit");
 
         // Assert
         verify(driverChatRepository, times(0)).save(chat);

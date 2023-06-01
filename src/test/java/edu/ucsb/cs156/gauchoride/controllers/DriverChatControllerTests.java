@@ -10,6 +10,7 @@ import edu.ucsb.cs156.gauchoride.entities.DriverChat;
 import edu.ucsb.cs156.gauchoride.repositories.DriverChatRepository;
 import edu.ucsb.cs156.gauchoride.repositories.UserRepository;
 import edu.ucsb.cs156.gauchoride.entities.User;
+import edu.ucsb.cs156.gauchoride.errors.IllegalRequestException;
 import edu.ucsb.cs156.gauchoride.testconfig.TestConfig;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.http.MediaType;
@@ -20,6 +21,8 @@ import org.springframework.data.domain.PageRequest;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import org.springframework.web.util.NestedServletException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -253,5 +256,33 @@ public class DriverChatControllerTests extends ControllerTestCase {
         String expectedJson = mapper.writeValueAsString(chat);
         String responseString = response.getResponse().getContentAsString();
         assertEquals(expectedJson, responseString);
+    }
+
+    @WithMockUser(roles = { "ADMIN", "DRIVER", "USER" })
+    @Test
+    public void logged_in_admin_and_driver_can_only_post_for_themselves() throws Throwable {
+        // Setup
+        User user1 = User.builder().id(99L).build();
+        LocalDateTime ldt = LocalDateTime.parse("2023-05-27T00:00:00");
+        DriverChat chat = DriverChat.builder()
+                    .messageContent("Hey Can you pick me up now?")
+                    .sender(user1)
+                    .timeStamp(ldt)
+                    .build();
+
+        String requestBody = mapper.writeValueAsString(chat);
+        when(driverChatRepository.save(chat)).thenReturn(chat);
+
+        // Act
+        assertThatThrownBy(() -> {
+            mockMvc.perform(post("/api/driverchats/post")
+            .contentType(MediaType.APPLICATION_JSON)
+            .characterEncoding("utf-8")
+            .content(requestBody).with(csrf()))
+            .andExpect(status().isInternalServerError());
+        }).hasCause(new IllegalRequestException()).hasMessageContaining("HTTP request cannot be processed.");
+
+        // Assert
+        verify(driverChatRepository, times(0)).save(chat);
     }
 }

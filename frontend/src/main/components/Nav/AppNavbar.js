@@ -49,6 +49,14 @@ export default function AppNavbar({ currentUser, systemInfo, doLogout, currentUr
                   </NavDropdown>
                 )
               }
+              {
+                hasRole(currentUser, "ROLE_DRIVER") && (
+                  <NavDropdown title="Driver" id="appnavbar-driver-dropdown" data-testid="appnavbar-driver-dropdown" >
+                    <NavDropdown.Item as={Link} to="/driver/rides">Rides</NavDropdown.Item>
+                    <NavDropdown.Item as={Link} to="/driver/shift">Shift</NavDropdown.Item>
+                  </NavDropdown>
+                )
+              }
             </Nav>
 
             <Nav className="ml-auto">
@@ -65,8 +73,8 @@ export default function AppNavbar({ currentUser, systemInfo, doLogout, currentUr
               }
             </Nav>
           </Navbar.Collapse>
-        </Container >
-      </Navbar >
+        </Container>
+      </Navbar>
     </>
   );
 }

@@ -105,4 +105,5 @@ public class UsersController extends ApiController {
         userRepository.save(user);
         return genericMessage("User with id %s has toggled rider status".formatted(id));
     }
+
 }

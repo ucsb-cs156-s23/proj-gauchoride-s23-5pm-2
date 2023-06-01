@@ -88,11 +88,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
           if (getDriver(email)){
             mappedAuthorities.add(new SimpleGrantedAuthority("ROLE_DRIVER"));
           }
-
           if (getRider(email)){
             mappedAuthorities.add(new SimpleGrantedAuthority("ROLE_RIDER"));
           }
-
           if (email.endsWith("@ucsb.edu")) {
             mappedAuthorities.add(new SimpleGrantedAuthority("ROLE_MEMBER"));
           }
@@ -120,4 +118,5 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     Optional<User> u = userRepository.findByEmail(email);
     return u.isPresent() && u.get().getRider();
   }
+
  }

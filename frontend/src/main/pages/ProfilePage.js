@@ -32,6 +32,7 @@ const ProfilePage = () => {
                     <RoleBadge role={"ROLE_USER"} currentUser={currentUser}/>
                     <RoleBadge role={"ROLE_MEMBER"} currentUser={currentUser}/>
                     <RoleBadge role={"ROLE_ADMIN"} currentUser={currentUser}/>
+                    <RoleBadge role={"ROLE_DRIVER"} currentUser={currentUser}/>
                 </Col>
             </Row>
             <Row className="text-left">

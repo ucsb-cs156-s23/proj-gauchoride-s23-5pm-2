@@ -30,6 +30,19 @@ admin.args = {
     }
 };
 
+export const driver = Template.bind({});
+driver.args = {
+    currentUser: {
+        data: {
+            root: {
+                rolesList: [
+                    "ROLE_DRIVER"
+                ]
+            }
+        }
+    }
+};
+
 export const localhost3000 = Template.bind({});
 localhost3000.args = {
     currentUrl: "http://localhost:3000"

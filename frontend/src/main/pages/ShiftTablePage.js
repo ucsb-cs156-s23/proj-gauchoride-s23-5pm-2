@@ -1,25 +1,25 @@
 import React from "react";
 import BasicLayout from "main/layouts/BasicLayout/BasicLayout";
-import RidesTable from "main/components/Users/RidesTable"
+import ShiftTable from "main/components/Users/ShiftTable"
 
 import { useBackend } from "main/utils/useBackend";
-const DriverUsersPage = () => {
+const ShiftTablePage = () => {
 
-    const { data: rides, error: _error, status: _status } =
+    const { data: shift, error: _error, status: _status } =
         useBackend(
             // Stryker disable next-line all : don't test internal caching of React Query
-            ["/api/driver/rides"],
+            ["/api/driver/shift"],
             // Stryker disable next-line StringLiteral,ObjectLiteral : since "GET" is default, "" is an equivalent mutation
-            { method: "GET", url: "/api/driver/rides" },
+            { method: "GET", url: "/api/driver/shift" },
             []
         );
 
     return (
         <BasicLayout>
-            <h2>Rides</h2>
-            <RidesTable rides={rides} />
+            <h2>Shifts</h2>
+            <ShiftTable shift={shift} />
         </BasicLayout>
     );
 };
 
-export default DriverUsersPage;
+export default ShiftTablePage;

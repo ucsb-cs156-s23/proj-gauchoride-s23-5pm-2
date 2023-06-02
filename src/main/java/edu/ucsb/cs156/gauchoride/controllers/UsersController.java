@@ -26,7 +26,7 @@ import io.swagger.annotations.ApiParam;
 
 
 @Api(description = "User information (admin only)")
-@RequestMapping("/api/admin/users")
+@RequestMapping("/api/admin/users") //this is what you are looking for in terms of routing
 @RestController
 public class UsersController extends ApiController {
     @Autowired

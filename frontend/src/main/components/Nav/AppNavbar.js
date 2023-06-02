@@ -53,7 +53,7 @@ export default function AppNavbar({ currentUser, systemInfo, doLogout, currentUr
                 hasRole(currentUser, "ROLE_DRIVER") && (
                   <NavDropdown title="Driver" id="appnavbar-driver-dropdown" data-testid="appnavbar-driver-dropdown" >
                     <NavDropdown.Item as={Link} to="/driver/rides">Rides</NavDropdown.Item>
-                    <NavDropdown.Item as={Link} to="/driver/shift">Shift</NavDropdown.Item>
+                    <NavDropdown.Item as={Link} to="/driver/shift">Shifts</NavDropdown.Item>
                   </NavDropdown>
                 )
               }

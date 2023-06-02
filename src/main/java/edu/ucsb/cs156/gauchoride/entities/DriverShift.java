@@ -12,31 +12,30 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
+//(access = AccessLevel.PROTECTED)
 @Builder
-@Entity(name = "shifts")
+@Entity(name = "driverShifts")
 public class DriverShift {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private long id;
-
-  private Weekday weekday;
-
-  @JsonFormat(pattern = "HH:mm:ss", shape = JsonFormat.Shape.STRING)
-  private LocalDateTime startShiftTime;
-
-  @JsonFormat(pattern = "HH:mm:ss", shape = JsonFormat.Shape.STRING)
-  private LocalDateTime endShiftTime;
-
+  
   @ManyToOne
   private User driver;
 
   @ManyToOne
   private User backupDriver;
+
+  private Weekday weekday;
+
+  private LocalTime startTime;
+
+  private LocalTime endTime;
 
   public enum Weekday {
     Monday, Tuesday, Wednesday, Thursday, Friday;

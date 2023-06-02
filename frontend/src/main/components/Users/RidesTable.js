@@ -1,29 +1,23 @@
+export default function RidesTable({ rides}) {
 
-import OurTable, { ButtonColumn } from "main/components/OurTable"
-import { useBackendMutation } from "main/utils/useBackend";
-
-
-
-export default function UsersTable({ users}) {
-
-    function cellToAxiosParamsToggleAdmin(cell) {
-        return {
-            url: "/api/admin/users/toggleAdmin",
-            method: "POST",
-            params: {
-                id: cell.row.values.id
-            }
-        }
-    }
-    function cellToAxiosParamsToggleDriver(cell) {
-        return {
-            url: "/api/admin/users/toggleDriver",
-            method: "POST",
-            params: {
-                id: cell.row.values.id
-            }
-        }
-    }
+    // function cellToAxiosParamsToggleAdmin(cell) {
+    //     return {
+    //         url: "/api/admin/users/toggleAdmin",
+    //         method: "POST",
+    //         params: {
+    //             id: cell.row.values.id
+    //         }
+    //     }
+    // }
+    // function cellToAxiosParamsToggleDriver(cell) {
+    //     return {
+    //         url: "/api/admin/users/toggleDriver",
+    //         method: "POST",
+    //         params: {
+    //             id: cell.row.values.id
+    //         }
+    //     }
+    // }
 
     // Stryker disable all : hard to test for query caching
     const toggleAdminMutation = useBackendMutation(
@@ -48,6 +42,10 @@ export default function UsersTable({ users}) {
             accessor: 'id', // accessor is the "key" in the data
         },
         {
+            Location: 'Pickup Location',
+            accessor: 'givenLocation',
+        },
+        {
             Header: 'First Name',
             accessor: 'givenName',
         },
@@ -60,29 +58,25 @@ export default function UsersTable({ users}) {
             accessor: 'email',
         },
         {
-            Header: 'Admin',
-            id: 'admin',
-            accessor: (row, _rowIndex) => String(row.admin) // hack needed for boolean values to show up
-            //accessor: (row, _rowIndex) => <span data-testid={`admin-${row.id}`}>{String(row.admin)}</span> 
-        },
-        {
             Header: 'Driver',
             id: 'driver',
             accessor: (row, _rowIndex) => String(row.driver) // hack needed for boolean values to show up
+            //accessor: (row, _rowIndex) => <span data-testid={`admin-${row.id}`}>{String(row.admin)}</span> 
+        },
+        {
+            Header: 'Rider',
+            id: 'rider',
+            accessor: (row, _rowIndex) => String(row.rider) // hack needed for boolean values to show up
             //accessor: (row, _rowIndex) => <span data-testid={`driver-${row.id}`}>{String(row.driver)}</span>
         }
     ];
-   
     const buttonColumn = [
         ...columns,
-        ButtonColumn("toggle-admin", "primary", toggleAdminCallback, "UsersTable"),
-        ButtonColumn("toggle-driver", "primary", toggleDriverCallback, "UsersTable"),
     ]
-    //const columnsToDisplay = showButtons ? buttonColumn : columns;
                
     return <OurTable
-        data={users}
-        columns={buttonColumn}
-        testid={"UsersTable"}
+        data={rides}
+        columns = {buttonColumn}
+        testid={"RidesTable"}
     />;
 };

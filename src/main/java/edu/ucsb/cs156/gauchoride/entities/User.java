@@ -37,8 +37,6 @@ public class User {
   @Builder.Default
   private boolean rider=false;
   public void setRider(boolean rider) {
-    this.driver = rider;
+    this.rider = rider;
 }
-  @Builder.Default
-  private boolean rider=false;
 }

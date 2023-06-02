@@ -26,8 +26,8 @@ export default function RidesTable({ rides}) {
             accessor: 'familyName',
         },
         {
-            Header: 'Email',
-            accessor: 'email',
+            Header: 'Phone number',
+            accessor: 'phone',
         },
     ];
                

@@ -120,4 +120,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     Optional<User> u = userRepository.findByEmail(email);
     return u.isPresent() && u.get().getRider();
   }
+ 
+  public boolean getDriver(String email){
+    Optional<User> u = userRepository.findByEmail(email);
+    return u.isPresent() && u.get().getDriver();
+  }
  }

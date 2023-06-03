@@ -48,4 +48,5 @@ public class Ride {
     private String building;
     private String room;
     private String pickUp;
+    private Long phoneNumber;
 }

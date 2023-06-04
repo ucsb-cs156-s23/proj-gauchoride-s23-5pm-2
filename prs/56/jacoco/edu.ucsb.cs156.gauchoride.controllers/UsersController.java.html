@@ -93,17 +93,5 @@ import io.swagger.annotations.ApiParam;
 <span class="fc" id="L93">        userRepository.save(user);</span>
 <span class="fc" id="L94">        return genericMessage(&quot;User with id %s has toggled driver status&quot;.formatted(id));</span>
     }
-
-    @ApiOperation(value = &quot;Toggle the rider field&quot;)
-    @PreAuthorize(&quot;hasRole('ROLE_ADMIN')&quot;)
-    @PostMapping(&quot;/toggleRider&quot;)
-    public Object toggleRider( @ApiParam(&quot;id&quot;) @RequestParam Long id){
-<span class="fc" id="L101">        User user = userRepository.findById(id)</span>
-<span class="fc" id="L102">        .orElseThrow(() -&gt; new EntityNotFoundException(User.class, id));</span>
-
-<span class="fc bfc" id="L104" title="All 2 branches covered.">        user.setRider(!user.getRider());</span>
-<span class="fc" id="L105">        userRepository.save(user);</span>
-<span class="fc" id="L106">        return genericMessage(&quot;User with id %s has toggled rider status&quot;.formatted(id));</span>
-    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

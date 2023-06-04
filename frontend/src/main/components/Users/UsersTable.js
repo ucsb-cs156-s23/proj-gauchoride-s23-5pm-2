@@ -67,7 +67,6 @@ export default function UsersTable({ users }) {
         ButtonColumn("toggle-admin", "primary", toggleAdminCallback, "UsersTable"),
     ]
 
-    //const columnsToDisplay = showButtons ? buttonColumn : columns;
 
     return <OurTable
         data={users}

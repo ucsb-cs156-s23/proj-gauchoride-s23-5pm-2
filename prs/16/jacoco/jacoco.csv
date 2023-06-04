@@ -9,5 +9,5 @@ GauchoRide,edu.ucsb.cs156.gauchoride.services,CurrentUserService,0,10,0,2,0,2,0,
 GauchoRide,edu.ucsb.cs156.gauchoride.services,SystemInfoService,0,3,0,0,0,1,0,1,0,1
 GauchoRide,edu.ucsb.cs156.gauchoride.services,GrantedAuthoritiesService,0,21,0,0,0,7,0,3,0,3
 GauchoRide,edu.ucsb.cs156.gauchoride.services,SystemInfoServiceImpl,0,24,0,0,0,8,0,3,0,3
-GauchoRide,edu.ucsb.cs156.gauchoride.Interceptors,RoleUserInterceptor,14,85,3,9,2,22,3,7,0,4
+GauchoRide,edu.ucsb.cs156.gauchoride.Interceptors,RoleUserInterceptor,0,99,0,12,0,24,0,10,0,4
 GauchoRide,edu.ucsb.cs156.gauchoride.Interceptors,RoleUserInterceptorAppConfig,0,9,0,0,0,3,0,2,0,2

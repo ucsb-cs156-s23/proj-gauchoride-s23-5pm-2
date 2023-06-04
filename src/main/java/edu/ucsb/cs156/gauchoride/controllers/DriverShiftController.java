@@ -44,7 +44,7 @@ public class DriverShiftController extends ApiController {
     ObjectMapper mapper;
 
     @ApiOperation(value = "Get a list of all driver shifts")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') || hasRole('ROLE_DRIVER')")
     @GetMapping("/all")
     public Iterable<DriverShift> getAllDriverShifts() {
         Iterable<DriverShift> driverShifts = driverShiftRepository.findAll();

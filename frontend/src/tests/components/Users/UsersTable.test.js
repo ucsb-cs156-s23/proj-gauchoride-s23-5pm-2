@@ -63,7 +63,7 @@ describe("UserTable tests", () => {
       
         const buttons = getAllByRole("button");
         buttons.forEach(button => {
-          expect(button).toHaveClass("the-expected-class-of-a-primary-button");
+          expect(button).toHaveClass("btn btn-primary");
         });
       });
       

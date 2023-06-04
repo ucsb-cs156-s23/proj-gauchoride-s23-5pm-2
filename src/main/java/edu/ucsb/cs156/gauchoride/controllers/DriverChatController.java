@@ -20,7 +20,6 @@ import edu.ucsb.cs156.gauchoride.entities.DriverChat;
 import edu.ucsb.cs156.gauchoride.entities.User;
 import edu.ucsb.cs156.gauchoride.repositories.DriverChatRepository;
 import edu.ucsb.cs156.gauchoride.errors.EntityNotFoundException;
-import edu.ucsb.cs156.gauchoride.errors.IllegalRequestException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;

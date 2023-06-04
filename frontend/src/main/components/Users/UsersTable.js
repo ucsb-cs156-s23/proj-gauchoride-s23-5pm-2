@@ -1,8 +1,6 @@
 
 import OurTable, { ButtonColumn } from "main/components/OurTable"
 import { useBackendMutation } from "main/utils/useBackend";
-//import UsersTable from './UsersTable';
-//import {hasRole} from "main/utils/currentUser";
 
 
 export default function UsersTable({ users}) {
@@ -51,7 +49,7 @@ export default function UsersTable({ users}) {
         {},
         ["/api/admin/users"]
     );
-    // Stryker enable all 
+    // Stryker restore all 
 
     // Stryker disable next-line all : TODO try to make a good test for this
     const toggleAdminCallback = async (cell) => { toggleAdminMutation.mutate(cell); }
@@ -79,19 +77,16 @@ export default function UsersTable({ users}) {
             Header: 'Admin',
             id: 'admin',
             accessor: (row, _rowIndex) => String(row.admin) // hack needed for boolean values to show up
-            //accessor: (row, _rowIndex) => <span data-testid={`admin-${row.id}`}>{String(row.admin)}</span> 
         },
         {
             Header: 'Driver',
             id: 'driver',
             accessor: (row, _rowIndex) => String(row.driver) // hack needed for boolean values to show up
-            //accessor: (row, _rowIndex) => <span data-testid={`driver-${row.id}`}>{String(row.driver)}</span>
         },
         {
             Header: 'Rider',
             id: 'rider',
             accessor: (row, _rowIndex) => String(row.rider) // hack needed for boolean values to show up
-            //accessor: (row, _rowIndex) => <span data-testid={`driver-${row.id}`}>{String(row.driver)}</span>
         }
     ];
    
@@ -101,7 +96,6 @@ export default function UsersTable({ users}) {
         ButtonColumn("toggle-driver", "primary", toggleDriverCallback, "UsersTable"),
         ButtonColumn("toggle-rider", "primary", toggleRiderCallback, "UsersTable"),
     ]
-    //const columnsToDisplay = showButtons ? buttonColumn : columns;
                
     return <OurTable
         data={users}

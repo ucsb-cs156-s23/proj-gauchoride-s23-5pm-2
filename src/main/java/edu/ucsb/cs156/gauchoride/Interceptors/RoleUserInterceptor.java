@@ -1,4 +1,4 @@
-package edu.ucsb.cs156.gauchoride.Interceptor;
+package edu.ucsb.cs156.gauchoride.Interceptors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -49,7 +49,10 @@ public class RoleUserInterceptor implements HandlerInterceptor {
 
                 Set<GrantedAuthority> newAuthorities = new HashSet<>();
                 Collection<? extends GrantedAuthority> currentAuthorities = authentication.getAuthorities();
-                currentAuthorities.stream().filter(authority -> !authority.getAuthority().equals("ROLE_ADMIN") && !authority.getAuthority().equals("ROLE_DRIVER")).forEach(authority -> {
+                currentAuthorities.stream()
+                .filter(authority -> !authority.getAuthority().equals("ROLE_ADMIN")
+                 && !authority.getAuthority().equals("ROLE_DRIVER"))
+                .forEach(authority -> {
                     newAuthorities.add(authority);
                 });
 

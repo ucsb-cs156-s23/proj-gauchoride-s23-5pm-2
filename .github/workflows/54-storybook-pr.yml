@@ -7,7 +7,7 @@ on:
     branches:
       - main
     paths:
-      - 'frontend/**'
+      - 'frontend/**, .github/workflows/54-storybook-pr.yml'
 
 env:
   GH_TOKEN: ${{ github.token }}

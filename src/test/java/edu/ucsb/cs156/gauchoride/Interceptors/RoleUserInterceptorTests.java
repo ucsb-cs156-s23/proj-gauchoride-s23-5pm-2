@@ -1,10 +1,5 @@
 package edu.ucsb.cs156.gauchoride.Interceptors;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-
-import java.util.Optional;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,23 +17,26 @@ import edu.ucsb.cs156.gauchoride.ControllerTestCase;
 import edu.ucsb.cs156.gauchoride.repositories.UserRepository;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import java.util.Collection;
-import java.util.Map;
-import java.util.HashSet;
-import java.util.HashMap;
-import java.util.Set;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.mock.web.MockHttpServletResponse;
 
-import lombok.extern.slf4j.Slf4j;
+import java.util.Collection;
+import java.util.Map;
+import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.Optional;
+
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.times;
 
-@Slf4j
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 @SpringBootTest
 @AutoConfigureMockMvc
 public class RoleUserInterceptorTests extends ControllerTestCase{
@@ -64,29 +62,23 @@ public class RoleUserInterceptorTests extends ControllerTestCase{
 
         OAuth2User mockUser = new DefaultOAuth2User(fakeAuthorities, attributes, "name");
         Authentication authentication = new OAuth2AuthenticationToken(mockUser, fakeAuthorities , "mockUserRegisterId");
-        // Set the authentication in the SecurityContextHolder for test environment
+        // Set up some mock oauth authentication in the SecurityContextHolder for test environment
+        // Be aware: SecurityContext is thread bound
         SecurityContextHolder.setContext(SecurityContextHolder.createEmptyContext());
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
     @Test
-    public void user_not_present() throws Exception {
+    public void user_not_present_in_db_and_no_role_update_by_interceptor() throws Exception {
          // Set up
          User mockUser = User.builder()
          .id(1L)
-         .email("nimo@gmail.com")
+         .email("nemo@gmail.com")
          .admin(false)
          .driver(true).build();
-        when(userRepository.findByEmail("nimo@gmail.com")).thenReturn(Optional.of(mockUser));
+        when(userRepository.findByEmail("nemo@gmail.com")).thenReturn(Optional.of(mockUser));
 
-        SecurityContext securityContext = SecurityContextHolder.getContext();
-        Authentication authentication = securityContext.getAuthentication();
-
-        // Can access mock securityContext in this test
-        OAuth2User oAuthUser = ((OAuth2AuthenticationToken) authentication).getPrincipal();
-        java.util.Map<java.lang.String,java.lang.Object> attrs = oAuthUser.getAttributes();
-        log.info("test user attrs={}", attrs);
-
+        // Act
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/currentUser");
         HandlerExecutionChain chain = mapping.getHandler(request);
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -100,6 +92,7 @@ public class RoleUserInterceptorTests extends ControllerTestCase{
         assertTrue(roleRuleInterceptor.isPresent());
         roleRuleInterceptor.get().preHandle(request, response, chain.getHandler());
 
+        // Assert
         Collection<? extends GrantedAuthority> updatedAuthorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
         verify(userRepository, times(1)).findByEmail("mockOauth@gmail.com");
         boolean hasAdminRole = updatedAuthorities.stream().anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
@@ -113,7 +106,7 @@ public class RoleUserInterceptorTests extends ControllerTestCase{
     }
 
     @Test
-    public void interceptor_remove_admin_role() throws Exception {
+    public void interceptor_removes_admin_role_when_admin_field_in_db_is_false() throws Exception {
         // Set up
         User mockUser = User.builder()
             .id(1L)
@@ -122,14 +115,7 @@ public class RoleUserInterceptorTests extends ControllerTestCase{
             .driver(true).build();
         when(userRepository.findByEmail("mockOauth@gmail.com")).thenReturn(Optional.of(mockUser));
 
-        SecurityContext securityContext = SecurityContextHolder.getContext();
-        Authentication authentication = securityContext.getAuthentication();
-
-        // Can access mock securityContext in this test
-        OAuth2User oAuthUser = ((OAuth2AuthenticationToken) authentication).getPrincipal();
-        java.util.Map<java.lang.String,java.lang.Object> attrs = oAuthUser.getAttributes();
-        log.info("test user attrs={}", attrs);
-
+        // Act
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/currentUser");
         HandlerExecutionChain chain = mapping.getHandler(request);
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -143,6 +129,7 @@ public class RoleUserInterceptorTests extends ControllerTestCase{
         assertTrue(roleRuleInterceptor.isPresent());
         roleRuleInterceptor.get().preHandle(request, response, chain.getHandler());
 
+        // Assert
         Collection<? extends GrantedAuthority> updatedAuthorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
         verify(userRepository, times(1)).findByEmail("mockOauth@gmail.com");
         boolean hasAdminRole = updatedAuthorities.stream().anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
@@ -156,7 +143,7 @@ public class RoleUserInterceptorTests extends ControllerTestCase{
     }
 
     @Test
-    public void interceptor_remove_driver_role() throws Exception {
+    public void interceptor_removes_driver_role_when_driver_field_in_db_is_false() throws Exception {
         // Set up
         User mockUser = User.builder()
             .id(1L)
@@ -165,14 +152,7 @@ public class RoleUserInterceptorTests extends ControllerTestCase{
             .driver(false).build();
         when(userRepository.findByEmail("mockOauth@gmail.com")).thenReturn(Optional.of(mockUser));
 
-        SecurityContext securityContext = SecurityContextHolder.getContext();
-        Authentication authentication = securityContext.getAuthentication();
-
-        // Can access mock securityContext in this test
-        OAuth2User oAuthUser = ((OAuth2AuthenticationToken) authentication).getPrincipal();
-        java.util.Map<java.lang.String,java.lang.Object> attrs = oAuthUser.getAttributes();
-        log.info("test user attrs={}", attrs);
-
+        // Act
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/currentUser");
         HandlerExecutionChain chain = mapping.getHandler(request);
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -186,6 +166,7 @@ public class RoleUserInterceptorTests extends ControllerTestCase{
         assertTrue(roleRuleInterceptor.isPresent());
         roleRuleInterceptor.get().preHandle(request, response, chain.getHandler());
 
+        // Assert
         Collection<? extends GrantedAuthority> updatedAuthorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
         verify(userRepository, times(1)).findByEmail("mockOauth@gmail.com");
         boolean hasAdminRole = updatedAuthorities.stream().anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));

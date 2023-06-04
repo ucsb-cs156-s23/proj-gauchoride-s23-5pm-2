@@ -52,4 +52,16 @@ describe("UserTable tests", () => {
         expect(getByTestId(`${testId}-cell-row-1-col-driver`)).toHaveTextContent("true");
 
       });
+      test("ButtonColumn with primary style has the expected appearance", () => {
+        const { getAllByRole } = render(
+          <QueryClientProvider client={queryClient}>
+            <UsersTable users={usersFixtures.threeUsers} />
+          </QueryClientProvider>
+        );
+      
+        const buttons = getAllByRole("button");
+        buttons.forEach(button => {
+          expect(button).toHaveClass("btn btn-primary");
+        });
+      });
 });

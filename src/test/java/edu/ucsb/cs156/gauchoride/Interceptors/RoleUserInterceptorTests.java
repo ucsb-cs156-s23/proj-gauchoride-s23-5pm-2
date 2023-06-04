@@ -1,6 +1,7 @@
 package edu.ucsb.cs156.gauchoride.Interceptors;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.util.Optional;
 
@@ -64,13 +65,61 @@ public class RoleUserInterceptorTests extends ControllerTestCase{
         OAuth2User mockUser = new DefaultOAuth2User(fakeAuthorities, attributes, "name");
         Authentication authentication = new OAuth2AuthenticationToken(mockUser, fakeAuthorities , "mockUserRegisterId");
         // Set the authentication in the SecurityContextHolder for test environment
+        SecurityContextHolder.setContext(SecurityContextHolder.createEmptyContext());
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
     @Test
-    public void interceptor_remove_admin_driver_role() throws Exception {
+    public void user_not_present() throws Exception {
+         // Set up
+         User mockUser = User.builder()
+         .id(1L)
+         .email("nimo@gmail.com")
+         .admin(false)
+         .driver(true).build();
+        when(userRepository.findByEmail("nimo@gmail.com")).thenReturn(Optional.of(mockUser));
+
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        Authentication authentication = securityContext.getAuthentication();
+
+        // Can access mock securityContext in this test
+        OAuth2User oAuthUser = ((OAuth2AuthenticationToken) authentication).getPrincipal();
+        java.util.Map<java.lang.String,java.lang.Object> attrs = oAuthUser.getAttributes();
+        log.info("test user attrs={}", attrs);
+
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/currentUser");
+        HandlerExecutionChain chain = mapping.getHandler(request);
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        assert chain != null;
+        Optional<HandlerInterceptor> roleRuleInterceptor = chain.getInterceptorList()
+                        .stream()
+                        .filter(RoleUserInterceptor.class::isInstance)
+                        .findAny();
+
+        assertTrue(roleRuleInterceptor.isPresent());
+        roleRuleInterceptor.get().preHandle(request, response, chain.getHandler());
+
+        Collection<? extends GrantedAuthority> updatedAuthorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+        verify(userRepository, times(1)).findByEmail("mockOauth@gmail.com");
+        boolean hasAdminRole = updatedAuthorities.stream().anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
+        boolean hasDriverRole = updatedAuthorities.stream().anyMatch(authority -> authority.getAuthority().equals("ROLE_DRIVER"));
+        boolean hasUserRole = updatedAuthorities.stream().anyMatch(authority -> authority.getAuthority().equals("ROLE_USER"));
+        boolean hasMemberRole = updatedAuthorities.stream().anyMatch(authority -> authority.getAuthority().equals("ROLE_MEMBER"));
+        assertTrue(hasUserRole, "ROLE_USER should exist in authorities");
+        assertTrue(hasMemberRole, "ROLE_MEMBER should exist in authorities");
+        assertTrue(hasAdminRole, "ROLE_ADMIN should exist authorities");
+        assertTrue(hasDriverRole, "ROLE_DRIVER should exist in authorities");
+    }
+
+    @Test
+    public void interceptor_remove_admin_role() throws Exception {
         // Set up
-        User mockUser = User.builder().id(1L).email("mockOauth@gmail.com").admin(false).familyName("lmao").driver(false).build();
+        User mockUser = User.builder()
+            .id(1L)
+            .email("mockOauth@gmail.com")
+            .admin(false)
+            .driver(true).build();
         when(userRepository.findByEmail("mockOauth@gmail.com")).thenReturn(Optional.of(mockUser));
 
         SecurityContext securityContext = SecurityContextHolder.getContext();
@@ -94,12 +143,58 @@ public class RoleUserInterceptorTests extends ControllerTestCase{
         assertTrue(roleRuleInterceptor.isPresent());
         roleRuleInterceptor.get().preHandle(request, response, chain.getHandler());
 
-        Collection<? extends GrantedAuthority> currentAuthorities = authentication.getAuthorities();
-        for (GrantedAuthority authority : currentAuthorities) {
-            // Access each authority element here
-            // Somehow not properly updated. cannot write to securityContext in this case
-            System.out.println(authority.getAuthority());
-        }
+        Collection<? extends GrantedAuthority> updatedAuthorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
         verify(userRepository, times(1)).findByEmail("mockOauth@gmail.com");
+        boolean hasAdminRole = updatedAuthorities.stream().anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
+        boolean hasDriverRole = updatedAuthorities.stream().anyMatch(authority -> authority.getAuthority().equals("ROLE_DRIVER"));
+        boolean hasUserRole = updatedAuthorities.stream().anyMatch(authority -> authority.getAuthority().equals("ROLE_USER"));
+        boolean hasMemberRole = updatedAuthorities.stream().anyMatch(authority -> authority.getAuthority().equals("ROLE_MEMBER"));
+        assertTrue(hasUserRole, "ROLE_USER should exist in authorities");
+        assertTrue(hasMemberRole, "ROLE_MEMBER should exist in authorities");
+        assertFalse(hasAdminRole, "ROLE_ADMIN should be removed from authorities");
+        assertTrue(hasDriverRole, "ROLE_DRIVER should exist in authorities");
+    }
+
+    @Test
+    public void interceptor_remove_driver_role() throws Exception {
+        // Set up
+        User mockUser = User.builder()
+            .id(1L)
+            .email("mockOauth@gmail.com")
+            .admin(true)
+            .driver(false).build();
+        when(userRepository.findByEmail("mockOauth@gmail.com")).thenReturn(Optional.of(mockUser));
+
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        Authentication authentication = securityContext.getAuthentication();
+
+        // Can access mock securityContext in this test
+        OAuth2User oAuthUser = ((OAuth2AuthenticationToken) authentication).getPrincipal();
+        java.util.Map<java.lang.String,java.lang.Object> attrs = oAuthUser.getAttributes();
+        log.info("test user attrs={}", attrs);
+
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/currentUser");
+        HandlerExecutionChain chain = mapping.getHandler(request);
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        assert chain != null;
+        Optional<HandlerInterceptor> roleRuleInterceptor = chain.getInterceptorList()
+                        .stream()
+                        .filter(RoleUserInterceptor.class::isInstance)
+                        .findAny();
+
+        assertTrue(roleRuleInterceptor.isPresent());
+        roleRuleInterceptor.get().preHandle(request, response, chain.getHandler());
+
+        Collection<? extends GrantedAuthority> updatedAuthorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+        verify(userRepository, times(1)).findByEmail("mockOauth@gmail.com");
+        boolean hasAdminRole = updatedAuthorities.stream().anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
+        boolean hasDriverRole = updatedAuthorities.stream().anyMatch(authority -> authority.getAuthority().equals("ROLE_DRIVER"));
+        boolean hasUserRole = updatedAuthorities.stream().anyMatch(authority -> authority.getAuthority().equals("ROLE_USER"));
+        boolean hasMemberRole = updatedAuthorities.stream().anyMatch(authority -> authority.getAuthority().equals("ROLE_MEMBER"));
+        assertTrue(hasUserRole, "ROLE_USER should exist in authorities");
+        assertTrue(hasMemberRole, "ROLE_MEMBER should exist in authorities");
+        assertTrue(hasAdminRole, "ROLE_ADMIN should exist in authorities");
+        assertFalse(hasDriverRole, "ROLE_DRIVER should be removed from authorities");
     }
 }

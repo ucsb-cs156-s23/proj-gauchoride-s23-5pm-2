@@ -47,7 +47,7 @@ public class DriverChatController extends ApiController {
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_DRIVER')")
     @GetMapping("/list")
     public Iterable<DriverChat> getRecentMessage(
-        @ApiParam("limit") @RequestParam int limit
+        @ApiParam(name = "limit", required = true, example ="100", value="an integer, representing how many messages to query", type="Long") @RequestParam int limit
     ) {
         Pageable pageable = PageRequest.of(0, limit);
         return driverChatRepository.findAllByOrderByTimeStampDesc(pageable);
@@ -56,7 +56,7 @@ public class DriverChatController extends ApiController {
     @ApiOperation(value = "Get a single chat message")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_DRIVER')")
     @GetMapping("")
-    public DriverChat getMessageById(@ApiParam("id") @RequestParam Long id) {
+    public DriverChat getMessageById(@ApiParam(name = "id", required = true, example="15", value="id of the message", type="Long") @RequestParam Long id) {
         DriverChat message =  driverChatRepository.findById(id)
         .orElseThrow(()->new EntityNotFoundException(DriverChat.class, id));
 
@@ -71,14 +71,8 @@ public class DriverChatController extends ApiController {
     )  throws JsonProcessingException {
 
         User currentUser = getCurrentUser().getUser();
-        User sender = driverChat.getSender();
-
-        if (!currentUser.equals(sender)){
-            throw new IllegalRequestException();
-            // throw new IllegalArgumentException("some good stuff");
-        }
-
-        DriverChat savedMessage = driverChatRepository.save(driverChat);
-        return savedMessage;
+        driverChat.setSender(currentUser);
+      
+        return  driverChatRepository.save(driverChat);
     }
 }

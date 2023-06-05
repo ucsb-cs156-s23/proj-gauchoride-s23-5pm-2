@@ -22,7 +22,7 @@ export default function UsersTable({ users }) {
         {},
         ["/api/admin/users"]
     );
-    // Stryker enable all 
+    // Stryker restore all 
 
     // Stryker disable next-line all : TODO try to make a good test for this
     const toggleAdminCallback = async (cell) => { toggleAdminMutation.mutate(cell); }

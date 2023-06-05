@@ -30,8 +30,8 @@ describe("UserTable tests", () => {
             </QueryClientProvider>
         );
     
-        const expectedHeaders = ["id", "First Name", "Last Name", "Email", "Admin", "Driver"];
-        const expectedFields = ["id", "givenName", "familyName", "email", "admin", "driver"];
+        const expectedHeaders = ["id", "First Name", "Last Name", "Email", "Admin", "Driver","Rider"];
+        const expectedFields = ["id", "givenName", "familyName", "email", "admin", "driver", "rider"];
         const testId = "UsersTable";
 
         expectedHeaders.forEach( (headerText)=> {
@@ -47,10 +47,24 @@ describe("UserTable tests", () => {
         expect(getByTestId(`${testId}-cell-row-0-col-id`)).toHaveTextContent("1");
         expect(getByTestId(`${testId}-cell-row-0-col-admin`)).toHaveTextContent("true");
         expect(getByTestId(`${testId}-cell-row-0-col-driver`)).toHaveTextContent("false");
+        expect(getByTestId(`${testId}-cell-row-0-col-rider`)).toHaveTextContent("false");
         expect(getByTestId(`${testId}-cell-row-1-col-id`)).toHaveTextContent("2");
         expect(getByTestId(`${testId}-cell-row-1-col-admin`)).toHaveTextContent("false");
         expect(getByTestId(`${testId}-cell-row-1-col-driver`)).toHaveTextContent("true");
+        expect(getByTestId(`${testId}-cell-row-1-col-rider`)).toHaveTextContent("false");
 
       });
+      test("ButtonColumn with primary style has the expected appearance", () => {
+        const { getAllByRole } = render(
+          <QueryClientProvider client={queryClient}>
+            <UsersTable users={usersFixtures.threeUsers} />
+          </QueryClientProvider>
+        );
+      
+        const buttons = getAllByRole("button");
+        buttons.forEach(button => {
+          expect(button).toHaveClass("btn btn-primary");
+        });
+      });
+      
 });
-

@@ -181,4 +181,66 @@ public class RideControllerTests extends ControllerTestCase {
          // Assert
          verify(rideRepository, times(0)).save(ride);
      }
+    
+    
+    // Authorization tests for getById
+    @Test
+    public void logged_out_users_cannot_get_by_id() throws Exception {
+        mockMvc.perform(get("/api/rides?id=7"))
+        .andExpect(status().is(403)); // logged out users can't get by id
+    }
+
+    @WithMockUser(roles = { "USER" })
+    @Test
+    public void logged_in_user_cannot_get_by_id() throws Exception {
+        mockMvc.perform(get("/api/rides?id=7")).andExpect(status().is(403));
+    }
+
+    @WithMockUser(roles = { "ADMIN" })
+    @Test
+    public void test_that_logged_in_admin_can_get_by_id_when_the_id_exists() throws Exception {
+        LocalTime startT = LocalTime.of(14,0);
+        LocalTime stopT = LocalTime.of(15,15);
+        User student = User.builder().id(33L).build();
+        User driver = User.builder().id(10L).driver(true).build();
+        Ride ride = Ride.builder()
+        .day("Tuesday")
+        .rider(student)
+        .driver(driver)
+        .course("CMPSC 156")
+        .timeStart(startT)
+        .timeStop(stopT)
+        .building("South Hall")
+        .room("1431")
+        .pickUp("Home")
+        .phoneNumber(8001230101L)
+        .build();
+        
+        when(rideRepository.findById(eq(7L))).thenReturn(Optional.of(ride));
+
+        // act
+        MvcResult response = mockMvc.perform(get("/api/rides?id=7")).andExpect(status().isOk()).andReturn();
+
+        // assert
+        verify(rideRepository, times(1)).findById(eq(7L));
+        String expectedJson = mapper.writeValueAsString(ride);
+        String responseString = response.getResponse().getContentAsString();
+        assertEquals(expectedJson, responseString);
+    }
+        
+    @WithMockUser(roles = { "ADMIN" })
+    @Test
+    public void test_that_logged_in_admin_cannot_get_by_id_when_the_id_does_not_exist() throws Exception {
+        // arrange
+        when(rideRepository.findById(eq(7L))).thenReturn(Optional.empty());
+        
+        // act
+        MvcResult response = mockMvc.perform(get("/api/rides?id=7")).andExpect(status().isNotFound()).andReturn();
+        
+        // assert
+         verify(rideRepository, times(1)).findById(eq(7L));
+         Map<String, Object> json = responseToJson(response);
+         assertEquals("EntityNotFoundException", json.get("type"));
+         assertEquals("Ride with id 7 not found", json.get("message"));
+        }
 }

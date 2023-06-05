@@ -61,4 +61,14 @@ public class RideController extends ApiController {
             return savedRide;
         }
 
+    @ApiOperation(value = "Get a ride request by its id")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("")
+    public Ride getById(
+        @ApiParam("id") 
+        @RequestParam Long id) {
+            Ride ride = rideRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException(Ride.class, id));
+            return ride;
+        }
 }

@@ -3,12 +3,29 @@ import OurTable, { ButtonColumn } from "main/components/OurTable"
 import { useBackendMutation } from "main/utils/useBackend";
 
 
-
 export default function UsersTable({ users}) {
 
     function cellToAxiosParamsToggleAdmin(cell) {
         return {
             url: "/api/admin/users/toggleAdmin",
+            method: "POST",
+            params: {
+                id: cell.row.values.id
+            }
+        }
+    }
+    function cellToAxiosParamsToggleDriver(cell) {
+        return {
+            url: "/api/admin/users/toggleDriver",
+            method: "POST",
+            params: {
+                id: cell.row.values.id
+            }
+        }
+    }
+    function cellToAxiosParamsToggleRider(cell) {
+        return {
+            url: "/api/admin/users/toggleRider",
             method: "POST",
             params: {
                 id: cell.row.values.id
@@ -22,11 +39,22 @@ export default function UsersTable({ users}) {
         {},
         ["/api/admin/users"]
     );
-    // Stryker enable all 
+    const toggleDriverMutation = useBackendMutation(
+        cellToAxiosParamsToggleDriver,
+        {},
+        ["/api/admin/users"]
+    );
+    const toggleRiderMutation = useBackendMutation(
+        cellToAxiosParamsToggleRider,
+        {},
+        ["/api/admin/users"]
+    );
+    // Stryker restore all 
 
     // Stryker disable next-line all : TODO try to make a good test for this
     const toggleAdminCallback = async (cell) => { toggleAdminMutation.mutate(cell); }
-
+    const toggleDriverCallback = async (cell) => { toggleDriverMutation.mutate(cell); }
+    const toggleRiderCallback = async (cell) => { toggleRiderMutation.mutate(cell); }
 
     const columns = [
         {
@@ -54,16 +82,21 @@ export default function UsersTable({ users}) {
             Header: 'Driver',
             id: 'driver',
             accessor: (row, _rowIndex) => String(row.driver) // hack needed for boolean values to show up
+        },
+        {
+            Header: 'Rider',
+            id: 'rider',
+            accessor: (row, _rowIndex) => String(row.rider) // hack needed for boolean values to show up
         }
     ];
-
+   
     const buttonColumn = [
         ...columns,
         ButtonColumn("toggle-admin", "primary", toggleAdminCallback, "UsersTable"),
+        ButtonColumn("toggle-driver", "primary", toggleDriverCallback, "UsersTable"),
+        ButtonColumn("toggle-rider", "primary", toggleRiderCallback, "UsersTable"),
     ]
-
-    //const columnsToDisplay = showButtons ? buttonColumn : columns;
-
+               
     return <OurTable
         data={users}
         columns={buttonColumn}

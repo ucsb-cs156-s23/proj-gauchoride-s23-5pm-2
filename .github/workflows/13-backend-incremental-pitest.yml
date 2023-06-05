@@ -6,10 +6,10 @@ name: "13-backend-incremental-pitest: Java Mutation Testing (Pitest)"
 on:
   workflow_dispatch:
   pull_request:
-    paths: [src/**, pom.xml, lombok.config]
+    paths: [src/**, pom.xml, lombok.config, .github/workflows/13-backend-incremental-pitest.yml]
   push:
     branches: [ main ]
-    paths: [src/**, pom.xml, lombok.config]
+    paths: [src/**, pom.xml, lombok.config, .github/workflows/13-backend-incremental-pitest.yml]
 
 jobs:
   build:
@@ -35,7 +35,6 @@ jobs:
         fi
         echo "pr_number=${pr_number}" >> "$GITHUB_ENV"
   
-
     - name: Figure out branch name
       id: get-branch-name
       run: | 

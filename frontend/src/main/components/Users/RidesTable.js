@@ -10,24 +10,32 @@ export default function RidesTable({ rides}) {
             accessor: 'id', // accessor is the "key" in the data
         },
         {
-            Header: 'Pickup Location',
-            accessor: 'givenStartLocation',
+            Header: 'Rider',
+            accessor: 'rider',
         },
         {
-            Header: 'Drop-off Location',
-            accessor: 'givenEndLocation',
+            Header: 'Driver',
+            accessor: 'driver',
         },
         {
-            Header: 'First Name',
-            accessor: 'givenName',
+            Header: 'Course',
+            accessor: 'course',
         },
         {
-            Header: 'Last Name',
-            accessor: 'familyName',
+            Header: 'Building',
+            accessor: 'building',
         },
         {
-            Header: 'Phone number',
-            accessor: 'phone',
+            Header: 'Room',
+            accessor: 'room',
+        },
+        {
+            Header: 'Pick Up',
+            accessor: 'pickUp',
+        },
+        {
+            Header: 'Phone Number',
+            accessor: 'phoneNumber',
         },
     ];
                

@@ -15,18 +15,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import java.time.LocalTime;
-import org.springframework.format.annotation.DateTimeFormat;
+
 
 @Api(description = "Ride")
 @RequestMapping("/api/rides")
@@ -65,7 +62,13 @@ public class RideController extends ApiController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("")
     public Ride getById(
-        @ApiParam("id") 
+        @ApiParam(
+        name = "id", 
+        type = "Long", 
+        value = "id number of the ride request",
+        example = "7",
+        required = true
+        ) 
         @RequestParam Long id) {
             Ride ride = rideRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException(Ride.class, id));

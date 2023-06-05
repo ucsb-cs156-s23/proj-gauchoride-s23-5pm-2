@@ -61,5 +61,15 @@ import org.springframework.format.annotation.DateTimeFormat;
 <span class="fc" id="L61">            return savedRide;</span>
         }
 
+    @ApiOperation(value = &quot;Get a ride request by its id&quot;)
+    @PreAuthorize(&quot;hasRole('ROLE_ADMIN')&quot;)
+    @GetMapping(&quot;&quot;)
+    public Ride getById(
+        @ApiParam(&quot;id&quot;) 
+        @RequestParam Long id) {
+<span class="fc" id="L70">            Ride ride = rideRepository.findById(id)</span>
+<span class="fc" id="L71">            .orElseThrow(() -&gt; new EntityNotFoundException(Ride.class, id));</span>
+<span class="fc" id="L72">            return ride;</span>
+        }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

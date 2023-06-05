@@ -1,14 +1,12 @@
 package edu.ucsb.cs156.gauchoride.controllers;
 
+import edu.ucsb.cs156.gauchoride.entities.User;
 import edu.ucsb.cs156.gauchoride.repositories.UserRepository;
 import edu.ucsb.cs156.gauchoride.testconfig.TestConfig;
 import edu.ucsb.cs156.gauchoride.ControllerTestCase;
 import edu.ucsb.cs156.gauchoride.entities.Ride;
 import edu.ucsb.cs156.gauchoride.repositories.RideRepository;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -21,21 +19,15 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
-import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Optional;
+import java.util.Map;
 import java.time.LocalTime;
-import edu.ucsb.cs156.gauchoride.entities.User;
-
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
-import edu.ucsb.cs156.gauchoride.errors.IllegalRequestException;
 
 @WebMvcTest(controllers = RideController.class)
 @Import(TestConfig.class)
@@ -152,7 +144,6 @@ public class RideControllerTests extends ControllerTestCase {
          User currentUser = currentUserService.getCurrentUser().getUser();
          LocalTime startT = LocalTime.parse("14:00:00");
          LocalTime stopT = LocalTime.parse("15:15:00");
-         User otherUser = User.builder().id(33L).build();
          User driver = User.builder().id(10L).driver(false).build();
          Ride ride = Ride.builder()
          .day("Tuesday")
@@ -171,13 +162,8 @@ public class RideControllerTests extends ControllerTestCase {
          when(rideRepository.save(eq(ride))).thenReturn(ride);
  
          // Act
-         assertThatThrownBy(() -> {
-             mockMvc.perform(post("/api/rides/post")
-             .contentType(MediaType.APPLICATION_JSON)
-             .characterEncoding("utf-8")
-             .content(requestBody).with(csrf()))
-             .andExpect(status().isInternalServerError());
-         }).hasCause(new IllegalRequestException()).hasMessageContaining("HTTP request cannot be processed.");
+         mockMvc.perform(post("/api/rides/post").contentType(MediaType.APPLICATION_JSON).characterEncoding("utf-8").content(requestBody).with(csrf())).andExpect(status().isBadRequest());
+
          // Assert
          verify(rideRepository, times(0)).save(ride);
      }

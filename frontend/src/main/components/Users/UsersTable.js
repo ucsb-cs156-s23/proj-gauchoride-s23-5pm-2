@@ -4,7 +4,7 @@ import { useBackendMutation } from "main/utils/useBackend";
 
 
 
-export default function UsersTable({ users }) {
+export default function UsersTable({ users}) {
 
     function cellToAxiosParamsToggleAdmin(cell) {
         return {
@@ -22,7 +22,7 @@ export default function UsersTable({ users }) {
         {},
         ["/api/admin/users"]
     );
-    // Stryker restore all 
+    // Stryker enable all 
 
     // Stryker disable next-line all : TODO try to make a good test for this
     const toggleAdminCallback = async (cell) => { toggleAdminMutation.mutate(cell); }
@@ -54,11 +54,6 @@ export default function UsersTable({ users }) {
             Header: 'Driver',
             id: 'driver',
             accessor: (row, _rowIndex) => String(row.driver) // hack needed for boolean values to show up
-        },
-        {
-            Header: 'Rider',
-            id: 'rider',
-            accessor: (row, _rowIndex) => String(row.rider) // hack needed for boolean values to show up
         }
     ];
 
@@ -67,6 +62,7 @@ export default function UsersTable({ users }) {
         ButtonColumn("toggle-admin", "primary", toggleAdminCallback, "UsersTable"),
     ]
 
+    //const columnsToDisplay = showButtons ? buttonColumn : columns;
 
     return <OurTable
         data={users}

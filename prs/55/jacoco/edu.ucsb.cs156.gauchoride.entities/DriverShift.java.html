@@ -16,8 +16,7 @@ import java.time.LocalTime;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
-//(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @Entity(name = &quot;driverShifts&quot;)
 public class DriverShift {
@@ -37,8 +36,8 @@ public class DriverShift {
 
   private LocalTime endTime;
 
-<span class="fc" id="L40">  public enum Weekday {</span>
-<span class="fc" id="L41">    Monday, Tuesday, Wednesday, Thursday, Friday;</span>
+<span class="fc" id="L39">  public enum Weekday {</span>
+<span class="fc" id="L40">    Monday, Tuesday, Wednesday, Thursday, Friday;</span>
   }
 }
 

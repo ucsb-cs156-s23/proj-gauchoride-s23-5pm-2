@@ -16,8 +16,7 @@ import java.time.LocalTime;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
-//(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @Entity(name = "driverShifts")
 public class DriverShift {

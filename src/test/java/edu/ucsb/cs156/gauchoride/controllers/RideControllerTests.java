@@ -37,136 +37,136 @@ public class RideControllerTests extends ControllerTestCase {
 
     @MockBean
     UserRepository userRepository;
-
-
-     // Authorization tests for /api/rides/post
-     @Test
-     public void logged_out_users_cannot_post() throws Exception {
-         mockMvc.perform(post("/api/rides/post"))
-         .andExpect(status().is(403));
-     }
+    
+    
+    // Authorization tests for /api/rides/post
+    @Test
+    public void logged_out_users_cannot_post() throws Exception {
+        mockMvc.perform(post("/api/rides/post"))
+        .andExpect(status().is(403));
+    }
  
-     @WithMockUser(roles = { "USER" })
-     @Test
-     public void logged_in_user_cannot_get_post() throws Exception {
-         mockMvc.perform(post("/api/rides/post")).andExpect(status().is(403));
-     }
+    @WithMockUser(roles = { "USER" })
+    @Test
+    public void logged_in_user_cannot_get_post() throws Exception {
+        mockMvc.perform(post("/api/rides/post")).andExpect(status().is(403));
+    }
  
-     @WithMockUser(roles = { "RIDER" })
-     @Test
-     public void logged_in_rider_can_post_a_new_ride_request() throws Exception {
-         LocalTime startT = LocalTime.parse("14:00:00");
-         LocalTime stopT = LocalTime.parse("15:15:00");
-         User currentUser = currentUserService.getCurrentUser().getUser();
-         User driver = User.builder().id(10L).driver(true).build();
-         Ride ride1 = Ride.builder()
-         .day("Tuesday")
-         .rider(currentUser)
-         .driver(driver)
-         .course("CMPSC 156")
-         .timeStart(startT)
-         .timeStop(stopT)
-         .building("South Hall")
-         .room("1431")
-         .pickUp("Home")
-         .phoneNumber(8001230101L)
-         .build();
+    @WithMockUser(roles = { "RIDER" })
+    @Test
+    public void logged_in_rider_can_post_a_new_ride_request() throws Exception {
+        LocalTime startT = LocalTime.parse("14:00:00");
+        LocalTime stopT = LocalTime.parse("15:15:00");
+        User currentUser = currentUserService.getCurrentUser().getUser();
+        User driver = User.builder().id(10L).driver(true).build();
+        Ride ride1 = Ride.builder()
+        .day("Tuesday")
+        .rider(currentUser)
+        .driver(driver)
+        .course("CMPSC 156")
+        .timeStart(startT)
+        .timeStop(stopT)
+        .building("South Hall")
+        .room("1431")
+        .pickUp("Home")
+        .phoneNumber(8001230101L)
+        .build();
          
-         String requestBody = mapper.writeValueAsString(ride1);
-         when(rideRepository.save(eq(ride1))).thenReturn(ride1);
+        String requestBody = mapper.writeValueAsString(ride1);
+        when(rideRepository.save(eq(ride1))).thenReturn(ride1);
  
-         // act
-         MvcResult response = mockMvc.perform(post("/api/rides/post")
-         .contentType(MediaType.APPLICATION_JSON)
-         .characterEncoding("utf-8")
-         .content(requestBody).with(csrf())).andExpect(status().isOk()).andReturn();
+        // act
+        MvcResult response = mockMvc.perform(post("/api/rides/post")
+        .contentType(MediaType.APPLICATION_JSON)
+        .characterEncoding("utf-8")
+        .content(requestBody).with(csrf())).andExpect(status().isOk()).andReturn();
  
-         // assert
-         verify(rideRepository, times(1)).save(ride1);
-         String expectedJson = mapper.writeValueAsString(ride1);
-         String responseString = response.getResponse().getContentAsString();
-         assertEquals(expectedJson, responseString);
-     }
- 
-     @WithMockUser(roles = { "RIDER" })
-     @Test
-     public void logged_in_rider_cannot_post_for_others() throws Exception {
-         User currentUser = currentUserService.getCurrentUser().getUser();
-         LocalTime startT = LocalTime.parse("14:00:00");
-         LocalTime stopT = LocalTime.parse("15:15:00");
-         User otherUser = User.builder().id(33L).build();
-         User driver = User.builder().id(10L).driver(true).build();
-         Ride ride1 = Ride.builder()
-         .day("Tuesday")
-         .rider(otherUser)
-         .driver(driver)
-         .course("CMPSC 156")
-         .timeStart(startT)
-         .timeStop(stopT)
-         .building("South Hall")
-         .room("1431")
-         .pickUp("Home")
-         .phoneNumber(8001230101L)
-         .build();
- 
-         Ride ride2 = Ride.builder()
-         .day("Tuesday")
-         .rider(currentUser)
-         .driver(driver)
-         .course("CMPSC 156")
-         .timeStart(startT)
-         .timeStop(stopT)
-         .building("South Hall")
-         .room("1431")
-         .pickUp("Home")
-         .phoneNumber(8001230101L)
-         .build();
-         
-         String requestBody = mapper.writeValueAsString(ride1);
-         when(rideRepository.save(eq(ride2))).thenReturn(ride2);
- 
-         // act
-         MvcResult response = mockMvc.perform(post("/api/rides/post")
-         .contentType(MediaType.APPLICATION_JSON)
-         .characterEncoding("utf-8")
-         .content(requestBody).with(csrf())).andExpect(status().isOk()).andReturn();
- 
-         // assert
-         verify(rideRepository, times(1)).save(ride2);
-         String expectedJson = mapper.writeValueAsString(ride2);
-         String responseString = response.getResponse().getContentAsString();
-         assertEquals(expectedJson, responseString);
-     }
- 
-     @WithMockUser(roles = { "RIDER" })
-     @Test
-     public void logged_in_rider_cannot_post_a_new_ride_request_with_no_driver() throws Exception {
-         User currentUser = currentUserService.getCurrentUser().getUser();
-         LocalTime startT = LocalTime.parse("14:00:00");
-         LocalTime stopT = LocalTime.parse("15:15:00");
-         User driver = User.builder().id(10L).driver(false).build();
-         Ride ride = Ride.builder()
-         .day("Tuesday")
-         .rider(currentUser)
-         .driver(driver)
-         .course("CMPSC 156")
-         .timeStart(startT)
-         .timeStop(stopT)
-         .building("South Hall")
-         .room("1431")
-         .pickUp("Home")
-         .phoneNumber(8001230101L)
-         .build();
- 
-         String requestBody = mapper.writeValueAsString(ride);
-         when(rideRepository.save(eq(ride))).thenReturn(ride);
- 
-         // Act
-         mockMvc.perform(post("/api/rides/post").contentType(MediaType.APPLICATION_JSON).characterEncoding("utf-8").content(requestBody).with(csrf())).andExpect(status().isBadRequest());
+        // assert
+        verify(rideRepository, times(1)).save(ride1);
+        String expectedJson = mapper.writeValueAsString(ride1);
+        String responseString = response.getResponse().getContentAsString();
+        assertEquals(expectedJson, responseString);
+    }
 
-         // Assert
-         verify(rideRepository, times(0)).save(ride);
-     }
+    @WithMockUser(roles = { "RIDER" })
+    @Test
+    public void logged_in_rider_cannot_post_for_others() throws Exception {
+        User currentUser = currentUserService.getCurrentUser().getUser();
+        LocalTime startT = LocalTime.parse("14:00:00");
+        LocalTime stopT = LocalTime.parse("15:15:00");
+        User otherUser = User.builder().id(33L).build();
+        User driver = User.builder().id(10L).driver(true).build();
+        Ride ride1 = Ride.builder()
+        .day("Tuesday")
+        .rider(otherUser)
+        .driver(driver)
+        .course("CMPSC 156")
+        .timeStart(startT)
+        .timeStop(stopT)
+        .building("South Hall")
+        .room("1431")
+        .pickUp("Home")
+        .phoneNumber(8001230101L)
+        .build();
+
+        Ride ride2 = Ride.builder()
+        .day("Tuesday")
+        .rider(currentUser)
+        .driver(driver)
+        .course("CMPSC 156")
+        .timeStart(startT)
+        .timeStop(stopT)
+        .building("South Hall")
+        .room("1431")
+        .pickUp("Home")
+        .phoneNumber(8001230101L)
+        .build();
+
+        String requestBody = mapper.writeValueAsString(ride1);
+        when(rideRepository.save(eq(ride2))).thenReturn(ride2);
+
+        // act
+        MvcResult response = mockMvc.perform(post("/api/rides/post")
+        .contentType(MediaType.APPLICATION_JSON)
+        .characterEncoding("utf-8")
+        .content(requestBody).with(csrf())).andExpect(status().isOk()).andReturn();
+
+        // assert
+        verify(rideRepository, times(1)).save(ride2);
+        String expectedJson = mapper.writeValueAsString(ride2);
+        String responseString = response.getResponse().getContentAsString();
+        assertEquals(expectedJson, responseString);
+    }
+ 
+    @WithMockUser(roles = { "RIDER" })
+    @Test
+    public void logged_in_rider_cannot_post_a_new_ride_request_with_no_driver() throws Exception {
+        User currentUser = currentUserService.getCurrentUser().getUser();
+        LocalTime startT = LocalTime.parse("14:00:00");
+        LocalTime stopT = LocalTime.parse("15:15:00");
+        User driver = User.builder().id(10L).driver(false).build();
+        Ride ride = Ride.builder()
+        .day("Tuesday")
+        .rider(currentUser)
+        .driver(driver)
+        .course("CMPSC 156")
+        .timeStart(startT)
+        .timeStop(stopT)
+        .building("South Hall")
+        .room("1431")
+        .pickUp("Home")
+        .phoneNumber(8001230101L)
+        .build();
+ 
+        String requestBody = mapper.writeValueAsString(ride);
+        when(rideRepository.save(eq(ride))).thenReturn(ride);
+ 
+        // Act
+        mockMvc.perform(post("/api/rides/post").contentType(MediaType.APPLICATION_JSON).characterEncoding("utf-8").content(requestBody).with(csrf())).andExpect(status().isBadRequest());
+
+        // Assert
+        verify(rideRepository, times(0)).save(ride);
+    }
     
     
     // Authorization tests for getById
@@ -228,5 +228,5 @@ public class RideControllerTests extends ControllerTestCase {
          Map<String, Object> json = responseToJson(response);
          assertEquals("EntityNotFoundException", json.get("type"));
          assertEquals("Ride with id 7 not found", json.get("message"));
-        }
+    }
 }

@@ -46,32 +46,25 @@ public class RideController extends ApiController {
         throws JsonProcessingException
         {
             User currentUser =   getCurrentUser().getUser();
-            User rider = ride.getRider();
+            ride.setRider(currentUser);
             User driver = ride.getDriver();
-            if(!rider.equals(currentUser)){
-                ride.setRider(currentUser);
-            }
             if(!(driver.getDriver())){
                 throw new IllegalRequestException();
             }
             Ride savedRide = rideRepository.save(ride);
             return savedRide;
-        }
+    }
 
     @ApiOperation(value = "Get a ride request by its id")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("")
     public Ride getById(
-        @ApiParam(
-        name = "id", 
-        type = "Long", 
-        value = "id number of the ride request",
-        example = "7",
-        required = true
+        @ApiParam(name = "id", type = "Long", value = "id number of the ride request", example = "7", required = true) 
+        @RequestParam Long id
         ) 
-        @RequestParam Long id) {
+        {
             Ride ride = rideRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException(Ride.class, id));
             return ride;
-        }
+    }
 }

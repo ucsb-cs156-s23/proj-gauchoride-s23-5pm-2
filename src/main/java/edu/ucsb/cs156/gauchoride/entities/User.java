@@ -34,5 +34,5 @@ public class User {
 
   public void setDriver(boolean driver) {
     this.driver = driver;
-}
+  }
 }

@@ -77,7 +77,7 @@ public class CartControllerTests extends ControllerTestCase {
                                 .andExpect(status().is(403)); // only admins can post
         }
 
-        // // Tests with mocks for database actions
+        // Tests with mocks for database actions
 
         @WithMockUser(roles = { "USER" })
         @Test

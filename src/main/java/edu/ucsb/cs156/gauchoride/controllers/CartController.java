@@ -31,14 +31,14 @@ import javax.validation.Valid;
 @Api(description = "Cart")
 @RequestMapping("/api/carts")
 @RestController
-//@Slf4j
+
 public class CartController extends ApiController {
 
     @Autowired
     CartRepository cartRepository;
 
     @ApiOperation(value = "List all carts")
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') || hasRole('ROLE_DRIVER')")
     @GetMapping("/all")
     public Iterable<Cart> allCart() {
         Iterable<Cart> carts = cartRepository.findAll();
@@ -46,7 +46,7 @@ public class CartController extends ApiController {
     }
 
     @ApiOperation(value = "Get a single cart")
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') || hasRole('ROLE_DRIVER')")
     @GetMapping("")
     public Cart getById(
             @ApiParam("id") @RequestParam Long id) {
@@ -65,9 +65,6 @@ public class CartController extends ApiController {
         @ApiParam("capacityPeople") @RequestParam int capacityPeople, 
         @ApiParam("capacityWheelchair")@RequestParam int capacityWheelchair
     ) throws JsonProcessingException {
-        // log.info("name={}", name);
-        // log.info("capacity_people={}", capacity_people);
-        // log.info("capacity_wheelchair={}", capacity_wheelchair);
 
         Cart cart = new Cart();
         cart.setName(name);
@@ -77,8 +74,6 @@ public class CartController extends ApiController {
         Cart savedCart = cartRepository.save(cart);
         return savedCart;
     }
-
-    // Rest of the controller methods...
 
     @ApiOperation(value = "Delete a Cart")
     @PreAuthorize("hasRole('ROLE_ADMIN')")

@@ -48,7 +48,7 @@ public class CartControllerTests extends ControllerTestCase {
                                 .andExpect(status().is(403)); // logged out users can't get all
         }
 
-        @WithMockUser(roles = { "USER" })
+        @WithMockUser(roles = { "DRIVER" })
         @Test
         public void logged_in_users_can_get_all() throws Exception {
                 mockMvc.perform(get("/api/carts/all"))
@@ -79,7 +79,7 @@ public class CartControllerTests extends ControllerTestCase {
 
         // Tests with mocks for database actions
 
-        @WithMockUser(roles = { "USER" })
+        @WithMockUser(roles = { "DRIVER" })
         @Test
         public void test_that_logged_in_user_can_get_by_id_when_the_id_exists() throws Exception {
 
@@ -105,7 +105,7 @@ public class CartControllerTests extends ControllerTestCase {
                 assertEquals(expectedJson, responseString);
         }
 
-        @WithMockUser(roles = { "USER" })
+        @WithMockUser(roles = { "DRIVER" })
         @Test
         public void test_that_logged_in_user_can_get_by_id_when_the_id_does_not_exist() throws Exception {
 
@@ -125,7 +125,7 @@ public class CartControllerTests extends ControllerTestCase {
                 assertEquals("Cart with id 7 not found", json.get("message"));
         }
 
-        @WithMockUser(roles = { "USER" })
+        @WithMockUser(roles = { "DRIVER" })
         @Test
         public void logged_in_user_can_get_all_cart() throws Exception {
 
@@ -160,7 +160,7 @@ public class CartControllerTests extends ControllerTestCase {
                 assertEquals(expectedJson, responseString);
         }
 
-        @WithMockUser(roles = { "ADMIN", "USER" })
+        @WithMockUser(roles = { "ADMIN" })
         @Test
         public void an_admin_user_can_post_a_new_cart() throws Exception {
                 // arrange
@@ -186,7 +186,7 @@ public class CartControllerTests extends ControllerTestCase {
                 assertEquals(expectedJson, responseString);
         }
 
-        @WithMockUser(roles = { "ADMIN", "USER" })
+        @WithMockUser(roles = { "ADMIN" })
         @Test
         public void admin_can_delete_a_cart() throws Exception {
                 // arrange
@@ -213,7 +213,7 @@ public class CartControllerTests extends ControllerTestCase {
                 assertEquals("Cart with id 15 deleted", json.get("message"));
         }
 
-        @WithMockUser(roles = { "ADMIN", "USER" })
+        @WithMockUser(roles = { "ADMIN" })
         @Test
         public void admin_tries_to_delete_non_existant_cart_and_gets_right_error_message()
                         throws Exception {
@@ -233,7 +233,7 @@ public class CartControllerTests extends ControllerTestCase {
                 assertEquals("Cart with id 15 not found", json.get("message"));
         }
 
-        @WithMockUser(roles = { "ADMIN", "USER" })
+        @WithMockUser(roles = { "ADMIN" })
         @Test
         public void admin_can_edit_an_existing_cart() throws Exception {
                 // arrange
@@ -270,7 +270,7 @@ public class CartControllerTests extends ControllerTestCase {
                 assertEquals(requestBody, responseString);
         }
 
-        @WithMockUser(roles = { "ADMIN", "USER" })
+        @WithMockUser(roles = { "ADMIN" })
         @Test
         public void admin_cannot_edit_cart_that_does_not_exist() throws Exception {
                 // arrange

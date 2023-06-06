@@ -31,14 +31,14 @@ import javax.validation.Valid;
 @Api(description = &quot;Cart&quot;)
 @RequestMapping(&quot;/api/carts&quot;)
 @RestController
-//@Slf4j
+
 <span class="fc" id="L35">public class CartController extends ApiController {</span>
 
     @Autowired
     CartRepository cartRepository;
 
     @ApiOperation(value = &quot;List all carts&quot;)
-    @PreAuthorize(&quot;hasRole('ROLE_USER')&quot;)
+    @PreAuthorize(&quot;hasRole('ROLE_ADMIN') || hasRole('ROLE_DRIVER')&quot;)
     @GetMapping(&quot;/all&quot;)
     public Iterable&lt;Cart&gt; allCart() {
 <span class="fc" id="L44">        Iterable&lt;Cart&gt; carts = cartRepository.findAll();</span>
@@ -46,7 +46,7 @@ import javax.validation.Valid;
     }
 
     @ApiOperation(value = &quot;Get a single cart&quot;)
-    @PreAuthorize(&quot;hasRole('ROLE_USER')&quot;)
+    @PreAuthorize(&quot;hasRole('ROLE_ADMIN') || hasRole('ROLE_DRIVER')&quot;)
     @GetMapping(&quot;&quot;)
     public Cart getById(
             @ApiParam(&quot;id&quot;) @RequestParam Long id) {
@@ -65,31 +65,26 @@ import javax.validation.Valid;
         @ApiParam(&quot;capacityPeople&quot;) @RequestParam int capacityPeople, 
         @ApiParam(&quot;capacityWheelchair&quot;)@RequestParam int capacityWheelchair
     ) throws JsonProcessingException {
-        // log.info(&quot;name={}&quot;, name);
-        // log.info(&quot;capacity_people={}&quot;, capacity_people);
-        // log.info(&quot;capacity_wheelchair={}&quot;, capacity_wheelchair);
 
-<span class="fc" id="L72">        Cart cart = new Cart();</span>
-<span class="fc" id="L73">        cart.setName(name);</span>
-<span class="fc" id="L74">        cart.setCapacityPeople(capacityPeople);</span>
-<span class="fc" id="L75">        cart.setCapacityWheelchair(capacityWheelchair);</span>
+<span class="fc" id="L69">        Cart cart = new Cart();</span>
+<span class="fc" id="L70">        cart.setName(name);</span>
+<span class="fc" id="L71">        cart.setCapacityPeople(capacityPeople);</span>
+<span class="fc" id="L72">        cart.setCapacityWheelchair(capacityWheelchair);</span>
 
-<span class="fc" id="L77">        Cart savedCart = cartRepository.save(cart);</span>
-<span class="fc" id="L78">        return savedCart;</span>
+<span class="fc" id="L74">        Cart savedCart = cartRepository.save(cart);</span>
+<span class="fc" id="L75">        return savedCart;</span>
     }
-
-    // Rest of the controller methods...
 
     @ApiOperation(value = &quot;Delete a Cart&quot;)
     @PreAuthorize(&quot;hasRole('ROLE_ADMIN')&quot;)
     @DeleteMapping(&quot;&quot;)
     public Object deleteCart(
             @ApiParam(&quot;id&quot;) @RequestParam Long id) {
-<span class="fc" id="L88">        Cart cart = cartRepository.findById(id)</span>
-<span class="fc" id="L89">                .orElseThrow(() -&gt; new EntityNotFoundException(Cart.class, id));</span>
+<span class="fc" id="L83">        Cart cart = cartRepository.findById(id)</span>
+<span class="fc" id="L84">                .orElseThrow(() -&gt; new EntityNotFoundException(Cart.class, id));</span>
 
-<span class="fc" id="L91">        cartRepository.delete(cart);</span>
-<span class="fc" id="L92">        return genericMessage(&quot;Cart with id %s deleted&quot;.formatted(id));</span>
+<span class="fc" id="L86">        cartRepository.delete(cart);</span>
+<span class="fc" id="L87">        return genericMessage(&quot;Cart with id %s deleted&quot;.formatted(id));</span>
     }
 
     @ApiOperation(value = &quot;Update a single cart&quot;)
@@ -99,16 +94,16 @@ import javax.validation.Valid;
             @ApiParam(&quot;id&quot;) @RequestParam Long id,
             @RequestBody @Valid Cart incoming) {
 
-<span class="fc" id="L102">        Cart cart = cartRepository.findById(id)</span>
-<span class="fc" id="L103">                .orElseThrow(() -&gt; new EntityNotFoundException(Cart.class, id));</span>
+<span class="fc" id="L97">        Cart cart = cartRepository.findById(id)</span>
+<span class="fc" id="L98">                .orElseThrow(() -&gt; new EntityNotFoundException(Cart.class, id));</span>
 
-<span class="fc" id="L105">        cart.setName(incoming.getName());</span>
-<span class="fc" id="L106">        cart.setCapacityPeople(incoming.getCapacityPeople());</span>
-<span class="fc" id="L107">        cart.setCapacityWheelchair(incoming.getCapacityWheelchair());</span>
+<span class="fc" id="L100">        cart.setName(incoming.getName());</span>
+<span class="fc" id="L101">        cart.setCapacityPeople(incoming.getCapacityPeople());</span>
+<span class="fc" id="L102">        cart.setCapacityWheelchair(incoming.getCapacityWheelchair());</span>
 
-<span class="fc" id="L109">        cartRepository.save(cart);</span>
+<span class="fc" id="L104">        cartRepository.save(cart);</span>
 
-<span class="fc" id="L111">        return cart;</span>
+<span class="fc" id="L106">        return cart;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

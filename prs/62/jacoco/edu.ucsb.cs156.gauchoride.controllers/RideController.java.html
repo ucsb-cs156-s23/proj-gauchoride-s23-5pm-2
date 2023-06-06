@@ -46,33 +46,26 @@ import javax.validation.Valid;
         throws JsonProcessingException
         {
 <span class="fc" id="L48">            User currentUser =   getCurrentUser().getUser();</span>
-<span class="fc" id="L49">            User rider = ride.getRider();</span>
+<span class="fc" id="L49">            ride.setRider(currentUser);</span>
 <span class="fc" id="L50">            User driver = ride.getDriver();</span>
-<span class="fc bfc" id="L51" title="All 2 branches covered.">            if(!rider.equals(currentUser)){</span>
-<span class="fc" id="L52">                ride.setRider(currentUser);</span>
+<span class="fc bfc" id="L51" title="All 2 branches covered.">            if(!(driver.getDriver())){</span>
+<span class="fc" id="L52">                throw new IllegalRequestException();</span>
             }
-<span class="fc bfc" id="L54" title="All 2 branches covered.">            if(!(driver.getDriver())){</span>
-<span class="fc" id="L55">                throw new IllegalRequestException();</span>
-            }
-<span class="fc" id="L57">            Ride savedRide = rideRepository.save(ride);</span>
-<span class="fc" id="L58">            return savedRide;</span>
-        }
+<span class="fc" id="L54">            Ride savedRide = rideRepository.save(ride);</span>
+<span class="fc" id="L55">            return savedRide;</span>
+    }
 
     @ApiOperation(value = &quot;Get a ride request by its id&quot;)
     @PreAuthorize(&quot;hasRole('ROLE_ADMIN')&quot;)
     @GetMapping(&quot;&quot;)
     public Ride getById(
-        @ApiParam(
-        name = &quot;id&quot;, 
-        type = &quot;Long&quot;, 
-        value = &quot;id number of the ride request&quot;,
-        example = &quot;7&quot;,
-        required = true
+        @ApiParam(name = &quot;id&quot;, type = &quot;Long&quot;, value = &quot;id number of the ride request&quot;, example = &quot;7&quot;, required = true) 
+        @RequestParam Long id
         ) 
-        @RequestParam Long id) {
-<span class="fc" id="L73">            Ride ride = rideRepository.findById(id)</span>
-<span class="fc" id="L74">            .orElseThrow(() -&gt; new EntityNotFoundException(Ride.class, id));</span>
-<span class="fc" id="L75">            return ride;</span>
-        }
+        {
+<span class="fc" id="L66">            Ride ride = rideRepository.findById(id)</span>
+<span class="fc" id="L67">            .orElseThrow(() -&gt; new EntityNotFoundException(Ride.class, id));</span>
+<span class="fc" id="L68">            return ride;</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

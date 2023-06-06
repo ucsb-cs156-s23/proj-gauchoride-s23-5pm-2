@@ -1,7 +1,6 @@
 package edu.ucsb.cs156.gauchoride.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.ucsb.cs156.gauchoride.entities.Cart;
 import edu.ucsb.cs156.gauchoride.repositories.CartRepository;
@@ -10,13 +9,13 @@ import edu.ucsb.cs156.gauchoride.errors.EntityNotFoundException;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -61,11 +60,14 @@ public class CartController extends ApiController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/post")
     public Cart postCart(
-        @ApiParam("name") @RequestParam String name,
-        @ApiParam("capacityPeople") @RequestParam int capacityPeople, 
-        @ApiParam("capacityWheelchair")@RequestParam int capacityWheelchair
+        @ApiParam(name = "name", type = "String", value = "name of the cart", example = "Cart1", required = true) 
+        @RequestParam String name,
+        @ApiParam(name = "capacityPeople", type = "Int", value = "Capacity of the Cart to fit People (e.g. 2 for 2 people)", example = "2", required = true ) 
+        @RequestParam int capacityPeople, 
+        @ApiParam(name = "capacityWheelchair", type = "Int", value = "Capacity of the Cart to fit Wheelchairs (e.g. 1 for 1 wheelchair)", example = "1", required = true )
+        @RequestParam int capacityWheelchair
     ) throws JsonProcessingException {
-
+        
         Cart cart = new Cart();
         cart.setName(name);
         cart.setCapacityPeople(capacityPeople);
@@ -79,7 +81,8 @@ public class CartController extends ApiController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("")
     public Object deleteCart(
-            @ApiParam("id") @RequestParam Long id) {
+            @ApiParam(name = "id", type = "Long", value = "ID value of Cart wanting to be deleted (e.g. 4 for cart with ID of 4)", example = "4", required = true ) 
+            @RequestParam Long id) {
         Cart cart = cartRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(Cart.class, id));
 
@@ -91,7 +94,8 @@ public class CartController extends ApiController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("")
     public Cart updateCart(
-            @ApiParam("id") @RequestParam Long id,
+            @ApiParam(name = "id", type = "Long", value = "ID value of Cart wanting to be updated (e.g. 4 for cart with ID of 4)", example = "4", required = true )  
+            @RequestParam Long id,
             @RequestBody @Valid Cart incoming) {
 
         Cart cart = cartRepository.findById(id)

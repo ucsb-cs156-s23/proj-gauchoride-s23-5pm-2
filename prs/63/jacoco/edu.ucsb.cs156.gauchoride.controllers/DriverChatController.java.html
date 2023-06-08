@@ -25,11 +25,12 @@ import edu.ucsb.cs156.gauchoride.errors.EntityNotFoundException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import java.time.LocalDateTime;
 
 @Api(description= &quot;Driver chat information&quot;)
 @RequestMapping(&quot;/api/driverchats&quot;)
 @RestController
-<span class="fc" id="L32">public class DriverChatController extends ApiController {</span>
+<span class="fc" id="L33">public class DriverChatController extends ApiController {</span>
 
     @Autowired
     DriverChatRepository driverChatRepository;
@@ -41,7 +42,7 @@ import io.swagger.annotations.ApiParam;
     @PreAuthorize(&quot;hasAnyRole('ROLE_ADMIN','ROLE_DRIVER')&quot;)
     @GetMapping(&quot;/all&quot;)
     public Iterable&lt;DriverChat&gt; getAllMessages() {
-<span class="fc" id="L44">        return driverChatRepository.findAll();</span>
+<span class="fc" id="L45">        return driverChatRepository.findAll();</span>
     }
 
     @ApiOperation(value = &quot;Get the latest N messages based on query parameters&quot;)
@@ -50,31 +51,35 @@ import io.swagger.annotations.ApiParam;
     public Iterable&lt;DriverChat&gt; getRecentMessage(
         @ApiParam(name = &quot;limit&quot;, required = true, example =&quot;100&quot;, value=&quot;an integer, representing how many messages to query&quot;, type=&quot;Long&quot;) @RequestParam int limit
     ) {
-<span class="fc" id="L53">        Pageable pageable = PageRequest.of(0, limit);</span>
-<span class="fc" id="L54">        return driverChatRepository.findAllByOrderByTimeStampDesc(pageable);</span>
+<span class="fc" id="L54">        Pageable pageable = PageRequest.of(0, limit);</span>
+<span class="fc" id="L55">        return driverChatRepository.findAllByOrderByTimeStampDesc(pageable);</span>
     }
 
     @ApiOperation(value = &quot;Get a single chat message&quot;)
     @PreAuthorize(&quot;hasAnyRole('ROLE_ADMIN','ROLE_DRIVER')&quot;)
     @GetMapping(&quot;&quot;)
     public DriverChat getMessageById(@ApiParam(name = &quot;id&quot;, required = true, example=&quot;15&quot;, value=&quot;id of the message&quot;, type=&quot;Long&quot;) @RequestParam Long id) {
-<span class="fc" id="L61">        DriverChat message =  driverChatRepository.findById(id)</span>
-<span class="fc" id="L62">        .orElseThrow(()-&gt;new EntityNotFoundException(DriverChat.class, id));</span>
+<span class="fc" id="L62">        DriverChat message =  driverChatRepository.findById(id)</span>
+<span class="fc" id="L63">        .orElseThrow(()-&gt;new EntityNotFoundException(DriverChat.class, id));</span>
 
-<span class="fc" id="L64">        return message;</span>
+<span class="fc" id="L65">        return message;</span>
     }
 
     @ApiOperation(value=&quot;Create a new chat message&quot;)
     @PreAuthorize(&quot;hasAnyRole('ROLE_ADMIN','ROLE_DRIVER')&quot;)
     @PostMapping(&quot;/post&quot;)
     public DriverChat postNewMessage(
-        @RequestBody @Valid DriverChat driverChat
+        @RequestBody String messageContent
     )  throws JsonProcessingException {
 
-<span class="fc" id="L74">        User currentUser = getCurrentUser().getUser();</span>
-<span class="fc" id="L75">        driverChat.setSender(currentUser);</span>
+<span class="fc" id="L75">        User currentUser = getCurrentUser().getUser();</span>
+<span class="fc" id="L76">        DriverChat chatMessage = DriverChat.builder()</span>
+<span class="fc" id="L77">        .sender(currentUser)</span>
+<span class="fc" id="L78">        .messageContent(messageContent)</span>
+<span class="fc" id="L79">        .timeStamp(LocalDateTime.now())</span>
+<span class="fc" id="L80">        .build();</span>
       
-<span class="fc" id="L77">        return  driverChatRepository.save(driverChat);</span>
+<span class="fc" id="L82">        return  driverChatRepository.save(chatMessage);</span>
     }
 
     @ApiOperation(value=&quot;Update a driver's message&quot;)
@@ -84,13 +89,13 @@ import io.swagger.annotations.ApiParam;
         @ApiParam(name = &quot;id&quot;, required = true, example=&quot;15&quot;, value=&quot;id of the message&quot;, type=&quot;Long&quot;) @RequestParam Long id,
         @ApiParam(name = &quot;messageContent&quot;, required = true, example=&quot;can you pick me up?&quot;, value=&quot;content of new the message&quot;, type=&quot;String&quot;) @RequestParam String messageContent
     ) {
-<span class="fc" id="L87">        User currentUser = getCurrentUser().getUser();</span>
-<span class="fc" id="L88">        DriverChat message = driverChatRepository.findByIdAndSender(id, currentUser)</span>
-<span class="fc" id="L89">                    .orElseThrow(()-&gt;new EntityNotFoundException(DriverChat.class, id));</span>
+<span class="fc" id="L92">        User currentUser = getCurrentUser().getUser();</span>
+<span class="fc" id="L93">        DriverChat message = driverChatRepository.findByIdAndSender(id, currentUser)</span>
+<span class="fc" id="L94">                    .orElseThrow(()-&gt;new EntityNotFoundException(DriverChat.class, id));</span>
         
-<span class="fc" id="L91">        message.setMessageContent(messageContent);</span>
-<span class="fc" id="L92">        driverChatRepository.save(message);</span>
-<span class="fc" id="L93">        return message;</span>
+<span class="fc" id="L96">        message.setMessageContent(messageContent);</span>
+<span class="fc" id="L97">        driverChatRepository.save(message);</span>
+<span class="fc" id="L98">        return message;</span>
     }
 
     @ApiOperation(value=&quot;Update a driver's message(admin can edit anyone's messages)&quot;)
@@ -100,12 +105,12 @@ import io.swagger.annotations.ApiParam;
         @ApiParam(name = &quot;id&quot;, required = true, example=&quot;15&quot;, value=&quot;id of the message&quot;, type=&quot;Long&quot;) @RequestParam Long id,
         @ApiParam(name = &quot;messageContent&quot;, required = true, example=&quot;can you pick me up?&quot;, value=&quot;content of the message&quot;, type=&quot;String&quot;) @RequestParam String messageContent
     ) {
-<span class="fc" id="L103">        DriverChat message = driverChatRepository.findById(id)</span>
-<span class="fc" id="L104">                .orElseThrow(()-&gt;new EntityNotFoundException(DriverChat.class, id));</span>
+<span class="fc" id="L108">        DriverChat message = driverChatRepository.findById(id)</span>
+<span class="fc" id="L109">                .orElseThrow(()-&gt;new EntityNotFoundException(DriverChat.class, id));</span>
         
-<span class="fc" id="L106">        message.setMessageContent(messageContent);</span>
-<span class="fc" id="L107">        driverChatRepository.save(message);</span>
-<span class="fc" id="L108">        return message;</span>
+<span class="fc" id="L111">        message.setMessageContent(messageContent);</span>
+<span class="fc" id="L112">        driverChatRepository.save(message);</span>
+<span class="fc" id="L113">        return message;</span>
     }
 
     @ApiOperation(value=&quot;Delete a chat message if it belongs to you&quot;)
@@ -114,12 +119,12 @@ import io.swagger.annotations.ApiParam;
     public Object deleteMessageByDriver(
         @ApiParam(name = &quot;id&quot;, required = true, example=&quot;15&quot;, value=&quot;id of the message&quot;, type=&quot;Long&quot;) @RequestParam Long id
     ) {
-<span class="fc" id="L117">        User currentUser = getCurrentUser().getUser();</span>
-<span class="fc" id="L118">        DriverChat message = driverChatRepository.findByIdAndSender(id, currentUser)</span>
-<span class="fc" id="L119">        .orElseThrow(()-&gt;new EntityNotFoundException(DriverChat.class, id));</span>
+<span class="fc" id="L122">        User currentUser = getCurrentUser().getUser();</span>
+<span class="fc" id="L123">        DriverChat message = driverChatRepository.findByIdAndSender(id, currentUser)</span>
+<span class="fc" id="L124">        .orElseThrow(()-&gt;new EntityNotFoundException(DriverChat.class, id));</span>
 
-<span class="fc" id="L121">        driverChatRepository.delete(message);</span>
-<span class="fc" id="L122">        return genericMessage(&quot;Message with id %s deleted.&quot;.formatted(id));</span>
+<span class="fc" id="L126">        driverChatRepository.delete(message);</span>
+<span class="fc" id="L127">        return genericMessage(&quot;Message with id %s deleted.&quot;.formatted(id));</span>
     }
 
     @ApiOperation(value=&quot;Delete a chat message&quot;)
@@ -128,19 +133,19 @@ import io.swagger.annotations.ApiParam;
     public Object deleteMessageByAdmin(
         @ApiParam(name = &quot;id&quot;, required = true, example=&quot;15&quot;, value=&quot;id of the message&quot;, type=&quot;Long&quot;) @RequestParam Long id
     ) {
-<span class="fc" id="L131">        DriverChat message = driverChatRepository.findById(id)</span>
-<span class="fc" id="L132">        .orElseThrow(()-&gt;new EntityNotFoundException(DriverChat.class, id));</span>
+<span class="fc" id="L136">        DriverChat message = driverChatRepository.findById(id)</span>
+<span class="fc" id="L137">        .orElseThrow(()-&gt;new EntityNotFoundException(DriverChat.class, id));</span>
 
-<span class="fc" id="L134">        driverChatRepository.delete(message);</span>
-<span class="fc" id="L135">        return genericMessage(&quot;Message with id %s deleted.&quot;.formatted(id));</span>
+<span class="fc" id="L139">        driverChatRepository.delete(message);</span>
+<span class="fc" id="L140">        return genericMessage(&quot;Message with id %s deleted.&quot;.formatted(id));</span>
     }
 
     @ApiOperation(value=&quot;Delete all chat messages&quot;)
     @PreAuthorize(&quot;hasRole('ROLE_ADMIN')&quot;)
     @DeleteMapping(&quot;/all&quot;)
     public Object deleteAllMessages() {
-<span class="fc" id="L142">        driverChatRepository.deleteAll();</span>
-<span class="fc" id="L143">        return genericMessage(&quot;All messages have been deleted.&quot;);</span>
+<span class="fc" id="L147">        driverChatRepository.deleteAll();</span>
+<span class="fc" id="L148">        return genericMessage(&quot;All messages have been deleted.&quot;);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

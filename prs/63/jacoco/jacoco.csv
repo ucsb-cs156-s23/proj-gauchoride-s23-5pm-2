@@ -1,10 +1,13 @@
 GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
 GauchoRide,edu.ucsb.cs156.gauchoride.errors,EntityNotFoundException,0,17,0,0,0,3,0,1,0,1
+GauchoRide,edu.ucsb.cs156.gauchoride.errors,IllegalRequestException,0,4,0,0,0,2,0,1,0,1
 GauchoRide,edu.ucsb.cs156.gauchoride.controllers,UserInfoController,0,6,0,0,0,2,0,2,0,2
 GauchoRide,edu.ucsb.cs156.gauchoride.controllers,DriverShiftController,0,9,0,0,0,3,0,2,0,2
-GauchoRide,edu.ucsb.cs156.gauchoride.controllers,DriverChatController,0,175,0,0,0,32,0,15,0,15
+GauchoRide,edu.ucsb.cs156.gauchoride.controllers,DriverChatController,0,181,0,0,0,36,0,15,0,15
+GauchoRide,edu.ucsb.cs156.gauchoride.controllers,CartController,0,111,0,0,0,23,0,9,0,9
 GauchoRide,edu.ucsb.cs156.gauchoride.controllers,ApiController,0,24,0,0,0,7,0,5,0,5
 GauchoRide,edu.ucsb.cs156.gauchoride.controllers,UsersController,0,180,0,6,0,26,0,15,0,12
+GauchoRide,edu.ucsb.cs156.gauchoride.controllers,RideController,0,49,0,2,0,12,0,6,0,5
 GauchoRide,edu.ucsb.cs156.gauchoride.controllers,CSRFController,0,5,0,0,0,2,0,2,0,2
 GauchoRide,edu.ucsb.cs156.gauchoride.controllers,SystemInfoController,0,7,0,0,0,2,0,2,0,2
 GauchoRide,edu.ucsb.cs156.gauchoride.services,GrantedAuthoritiesService,0,21,0,0,0,7,0,3,0,3

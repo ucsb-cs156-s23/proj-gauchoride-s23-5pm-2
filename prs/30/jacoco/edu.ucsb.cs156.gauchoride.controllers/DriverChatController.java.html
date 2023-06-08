@@ -14,8 +14,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
 
-import javax.validation.Valid;
-
 import edu.ucsb.cs156.gauchoride.entities.DriverChat;
 import edu.ucsb.cs156.gauchoride.entities.User;
 import edu.ucsb.cs156.gauchoride.repositories.DriverChatRepository;
@@ -23,6 +21,8 @@ import edu.ucsb.cs156.gauchoride.errors.EntityNotFoundException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+
+import java.time.LocalDateTime;
 
 @Api(description= &quot;Driver chat information&quot;)
 @RequestMapping(&quot;/api/driverchats&quot;)
@@ -66,13 +66,17 @@ import io.swagger.annotations.ApiParam;
     @PreAuthorize(&quot;hasAnyRole('ROLE_ADMIN','ROLE_DRIVER')&quot;)
     @PostMapping(&quot;/post&quot;)
     public DriverChat postNewMessage(
-        @RequestBody @Valid DriverChat driverChat
+        @RequestBody String messageContent
     )  throws JsonProcessingException {
 
 <span class="fc" id="L72">        User currentUser = getCurrentUser().getUser();</span>
-<span class="fc" id="L73">        driverChat.setSender(currentUser);</span>
+<span class="fc" id="L73">        DriverChat chatMessage = DriverChat.builder()</span>
+<span class="fc" id="L74">            .sender(currentUser)</span>
+<span class="fc" id="L75">            .messageContent(messageContent)</span>
+<span class="fc" id="L76">            .timeStamp(LocalDateTime.now())</span>
+<span class="fc" id="L77">            .build();</span>
       
-<span class="fc" id="L75">        return  driverChatRepository.save(driverChat);</span>
+<span class="fc" id="L79">        return  driverChatRepository.save(chatMessage);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

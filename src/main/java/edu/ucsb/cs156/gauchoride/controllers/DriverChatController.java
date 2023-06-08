@@ -14,8 +14,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
 
-import javax.validation.Valid;
-
 import edu.ucsb.cs156.gauchoride.entities.DriverChat;
 import edu.ucsb.cs156.gauchoride.entities.User;
 import edu.ucsb.cs156.gauchoride.repositories.DriverChatRepository;
@@ -23,6 +21,8 @@ import edu.ucsb.cs156.gauchoride.errors.EntityNotFoundException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+
+import java.time.LocalDateTime;
 
 @Api(description= "Driver chat information")
 @RequestMapping("/api/driverchats")
@@ -66,12 +66,16 @@ public class DriverChatController extends ApiController {
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_DRIVER')")
     @PostMapping("/post")
     public DriverChat postNewMessage(
-        @RequestBody @Valid DriverChat driverChat
+        @RequestBody String messageContent
     )  throws JsonProcessingException {
 
         User currentUser = getCurrentUser().getUser();
-        driverChat.setSender(currentUser);
+        DriverChat chatMessage = DriverChat.builder()
+            .sender(currentUser)
+            .messageContent(messageContent)
+            .timeStamp(LocalDateTime.now())
+            .build();
       
-        return  driverChatRepository.save(driverChat);
+        return  driverChatRepository.save(chatMessage);
     }
 }

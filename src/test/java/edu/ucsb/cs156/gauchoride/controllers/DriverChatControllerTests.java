@@ -22,6 +22,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.Map;
 import java.util.ArrayList;
@@ -32,6 +33,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.any;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 @WebMvcTest(controllers = DriverChatController.class)
@@ -232,15 +235,16 @@ public class DriverChatControllerTests extends ControllerTestCase {
     public void logged_in_admin_and_driver_can_post_message() throws Exception {
         // Setup
         User currentUser = currentUserService.getCurrentUser().getUser();
-        LocalDateTime ldt = LocalDateTime.parse("2023-05-27T00:00:00");
+        LocalDateTime ldt = LocalDateTime.now();
+        String requestBody = "Hey Can you pick me up now?";
+       
         DriverChat chat = DriverChat.builder()
-                    .messageContent("Hey Can you pick me up now?")
+                    .messageContent(requestBody)
                     .sender(currentUser)
                     .timeStamp(ldt)
                     .build();
 
-        String requestBody = mapper.writeValueAsString(chat);
-        when(driverChatRepository.save(chat)).thenReturn(chat);
+        when(driverChatRepository.save(any(DriverChat.class))).thenReturn(chat);
 
         // Act
         MvcResult response = mockMvc.perform(post("/api/driverchats/post")
@@ -249,44 +253,8 @@ public class DriverChatControllerTests extends ControllerTestCase {
         .content(requestBody).with(csrf())).andExpect(status().isOk()).andReturn();
 
         // Assert
-        verify(driverChatRepository, times(1)).save(chat);
+        verify(driverChatRepository, times(1)).save(any(DriverChat.class));
         String expectedJson = mapper.writeValueAsString(chat);
-        String responseString = response.getResponse().getContentAsString();
-        assertEquals(expectedJson, responseString);
-    }
-
-    @WithMockUser(roles = { "ADMIN", "DRIVER", "USER" })
-    @Test
-    public void logged_in_admin_and_driver_can_only_post_for_themselves() throws Throwable {
-        // Setup
-        User currentUser = currentUserService.getCurrentUser().getUser();
-        User user1 = User.builder().id(99L).build();
-        LocalDateTime ldt = LocalDateTime.parse("2023-05-27T00:00:00");
-        DriverChat chat = DriverChat.builder()
-                    .messageContent("Hey Can you pick me up now?")
-                    .sender(user1)
-                    .timeStamp(ldt)
-                    .build();
-
-        DriverChat savedChat = DriverChat.builder()
-        .messageContent("Hey Can you pick me up now?")
-        .sender(currentUser)
-        .timeStamp(ldt)
-        .build();
-
-        String requestBody = mapper.writeValueAsString(chat);
-        when(driverChatRepository.save(savedChat)).thenReturn(savedChat);
-
-        // Act
-        MvcResult response = mockMvc.perform(post("/api/driverchats/post")
-        .contentType(MediaType.APPLICATION_JSON)
-        .characterEncoding("utf-8")
-        .content(requestBody).with(csrf()))
-        .andExpect(status().isOk()).andReturn();
-
-        // Assert
-        verify(driverChatRepository, times(1)).save(savedChat);
-        String expectedJson = mapper.writeValueAsString(savedChat);
         String responseString = response.getResponse().getContentAsString();
         assertEquals(expectedJson, responseString);
     }
